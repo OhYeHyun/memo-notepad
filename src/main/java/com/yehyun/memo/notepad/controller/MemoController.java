@@ -7,8 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,6 +43,25 @@ public class MemoController {
         if (action.equals("delete")) {
             memoRepository.delete(memo);
         }
+        return "redirect:/";
+    }
+
+    @GetMapping("/memo/{memoId}/edit")
+    public String editMemo(@PathVariable Long memoId, Model model) {
+        log.info("수정 {}", memoId);
+
+        Memo memo = memoRepository.findById(memoId);
+        List<Memo> memoList = memoRepository.getAll();
+
+        model.addAttribute("memoToEdit", memo);
+        model.addAttribute("memos", memoList);
+        return "editMemo";
+    }
+
+    @PostMapping("/memo/{memoId}/edit")
+    public String edit(@PathVariable Long memoId, @RequestParam String content) {
+        Memo memo = memoRepository.findById(memoId);
+        memo.setContent(content);
         return "redirect:/";
     }
 }

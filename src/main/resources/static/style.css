@@ -8,6 +8,10 @@ body {
     height: 100vh;
 }
 
+.middle {
+    position: relative;
+}
+
 .outer {
     position: absolute;
     top: 50%;
@@ -51,6 +55,11 @@ body {
     &:hover {
         background-color: rgba(192, 252, 249, 0.192);
         color: rgb(150, 97, 97);
+        & .edit {
+            color: rgb(150, 97, 97);
+            animation: rotate_button 0.5s infinite;
+            transform: scale(1.1);
+        }
         & .delete {
             color: rgb(150, 97, 97);
             animation: rotate_button 0.5s infinite;
@@ -62,7 +71,25 @@ body {
             animation: none !important;
             transform: scale(1.2) !important;
         }
+        & .save {
+            transform: scale(1.2) !important;
+        }
     }
+}
+
+.edit-input {
+    color: rgb(51, 51, 51);
+    background-color: rgb(255, 255, 255);
+    height: 70%;
+    border-radius: 9px;
+    font-size: 1.1rem;
+    border: none;
+
+    width: calc(100% - 100px);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .all-list {
@@ -121,19 +148,52 @@ body {
     }
 }
 
-.check {
-    right: 10px;
+.edit {
+    position: absolute;
+    right: 50px;
     display: flex;
-    color: rgb(192, 228, 193);
+    color: rgb(202, 127, 127);
     background-color: transparent;
     padding: 8px;
     margin: 1px;
-    font-size: 20px;
+    font-size: 25px;
     border: none;
     cursor: pointer;
 
     &:hover {
-        color: rgb(129, 205, 133);
+        background-color: rgba(172, 172, 172, 0.3) !important;
+        border-radius: 50%;
+        animation: none !important;
+        transform: scale(1.1) !important;
+    }
+    &:active {
+        background-color: rgba(228, 228, 228, 0.6) !important;
+        animation: none !important;
+        transform: scale(1) !important;
+    }
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.save {
+    position: absolute;
+    right: 10px;
+    display: flex;
+    color: rgb(250, 151, 151);
+    background-color: transparent;
+    padding: 8px;
+    margin: 1px;
+    font-size: 30px;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(172, 172, 172, 0.3) !important;
+        color: rgb(234, 134, 134);
         border-radius: 50%;
         animation: none !important;
         transform: scale(1.1) !important;
@@ -146,10 +206,58 @@ body {
     }
 }
 
+.check {
+    right: 10px;
+    display: flex;
+    color: rgb(192, 228, 193);
+    background-color: transparent;
+    padding: 8px;
+    margin: 1px;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+        color: rgb(143, 250, 150);
+        border-radius: 50%;
+        animation: none !important;
+        transform: scale(1.1) !important;
+    }
+
+    &:active {
+        background-color: rgba(221, 217, 217, 0.6) !important;
+        animation: none !important;
+        transform: scale(1) !important;
+    }
+}
+
 .check.checked {
     color: rgb(132, 197, 136);
     animation: none !important;
     transform: scale(1) !important;
+}
+
+.back-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 15px;
+}
+
+.back-button {
+    font-size: 50px;
+    color: rgb(250, 151, 151);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+        color: rgb(234, 134, 134);
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(1);
+    }
 }
 
 .write {
