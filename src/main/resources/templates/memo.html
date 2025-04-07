@@ -26,8 +26,9 @@
             <li th:each="memo : ${memos}" class="list">
                 <form method="post" th:action="@{/memo/action}" class="title" th:classappend="${memo.check} ? ' completed'">
                     <input type="hidden" name="id" th:value="${memo.id}" />
-                    <button type="submit" name="action" value="check" class="check">
-                        <i class="fa fa-circle-check"></i>
+                    <button type="submit" name="action" value="check" class="check" th:classappend="${memo.check} ? ' checked'">
+                        <i class="fa fa-regular fa-circle" th:if="${!memo.check}"></i>
+                        <i class="fa fa-circle-check" th:if="${memo.check}"></i>
                     </button>
 
                     <span th:text="${memo.content}"></span>
