@@ -37,12 +37,12 @@
         </ul>
     </section>
     <section class="end">
-        <div class="write">
-            <input type="text" class="text" placeholder="메모를 입력하세요.">
-            <button type="button" class="item-add-button">
+        <form method="post" action="/memo/save" class="write">
+            <input type="text" class="text" name="content" placeholder="메모를 입력하세요." autofocus>
+            <button type="submit" class="item-add-button">
                 <i class="fa fa-square-plus"></i>
             </button>
-        </div>
+        </form>
     </section>
 </div>
 </body>
