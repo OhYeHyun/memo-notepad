@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MEMO</title>
+    <script
+            src="https://kit.fontawesome.com/998e6e9dfd.js"
+            crossorigin="anonymous"
+    ></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
+            rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div class="outer">
+    <section class="top">
+        <div class="memo">Memo</div>
+    </section>
+    <section class="middle">
+        <ul class="all-list">
+            <li th:each="memo : ${memos}" class="list">
+                <div class="title">
+                    <button type="button" class="check">
+                        <i class="fa fa-circle-check"></i>
+                    </button>
+                    <span th:text="${memo.content}"></span>
+                    <button type="button" class="delete">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+            </li>
+        </ul>
+    </section>
+    <section class="end">
+        <div class="write">
+            <input type="text" class="text" placeholder="메모를 입력하세요.">
+            <button type="button" class="item-add-button">
+                <i class="fa fa-square-plus"></i>
+            </button>
+        </div>
+    </section>
+</div>
+</body>
+</html>
