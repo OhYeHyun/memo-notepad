@@ -24,20 +24,23 @@
     <section class="middle">
         <ul class="all-list">
             <li th:each="memo : ${memos}" class="list">
-                <div class="title">
-                    <button type="button" class="check">
+                <form method="post" th:action="@{/memo/action}" class="title" th:classappend="${memo.check} ? ' completed'">
+                    <input type="hidden" name="id" th:value="${memo.id}" />
+                    <button type="submit" name="action" value="check" class="check">
                         <i class="fa fa-circle-check"></i>
                     </button>
+
                     <span th:text="${memo.content}"></span>
-                    <button type="button" class="delete">
+
+                    <button type="submit" name="action" value="delete" class="delete">
                         <i class="fa fa-trash"></i>
                     </button>
-                </div>
+                </form>
             </li>
         </ul>
     </section>
     <section class="end">
-        <form method="post" action="/memo/save" class="write">
+        <form method="post" th:action="@{/memo/save}" class="write">
             <input type="text" class="text" name="content" placeholder="메모를 입력하세요." autofocus>
             <button type="submit" class="item-add-button">
                 <i class="fa fa-square-plus"></i>

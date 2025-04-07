@@ -29,4 +29,17 @@ public class MemoController {
         log.info("저장됨 {}", content);
         return "redirect:/";
     }
+
+    @PostMapping("/memo/action")
+    public String deleteMemo(@RequestParam("id") Long id, @RequestParam String action) {
+        Memo memo = memoRepository.findById(id);
+
+        if (action.equals("check")) {
+            memo.setCheck(!memo.isCheck());
+        }
+        if (action.equals("delete")) {
+            memoRepository.delete(memo);
+        }
+        return "redirect:/";
+    }
 }

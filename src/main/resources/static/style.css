@@ -163,6 +163,15 @@ body {
     }
 }
 
+.completed {
+    background-color : rgba(223, 202, 177, 0.5) !important;
+}
+
+.completed span {
+    text-decoration: line-through rgb(150, 97, 97) 3px;
+    color: rgb(150, 97, 97);
+}
+
 .text {
     flex-grow: 1;
     height: 60%;

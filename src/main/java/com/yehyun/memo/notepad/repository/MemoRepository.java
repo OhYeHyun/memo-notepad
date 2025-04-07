@@ -19,6 +19,14 @@ public class MemoRepository {
         store.put(memo.getId(), memo);
     }
 
+    public void delete(Memo memo) {
+        store.remove(memo.getId());
+    }
+
+    public Memo findById(Long id) {
+        return store.get(id);
+    }
+
     public List<Memo> getAll() {
         return new ArrayList<>(store.values());
     }
