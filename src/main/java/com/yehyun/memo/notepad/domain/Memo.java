@@ -8,7 +8,6 @@ public class Memo {
     private Long id;
     private String content;
     private boolean check;
-    private boolean delete;
 
     public Memo(String content) {
         this.content = content;

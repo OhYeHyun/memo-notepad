@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>MEMO EDIT</title>
     <script
             src="https://kit.fontawesome.com/998e6e9dfd.js"
             crossorigin="anonymous"
     ></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link
             href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
             rel="stylesheet"
     />
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/style.css"/>
 </head>
 <body>
 <div class="outer">
@@ -23,40 +23,38 @@
     </section>
 
     <section class="middle">
-        <ul class="all-list">
-            <li th:each="memo : ${memos}" class="list">
-                <form method="post"
-                      th:action="@{/memo/{memoId}/edit(memoId=${memo.id})}"
-                      class="title"
-                      th:classappend="${memo.check} ? ' completed'">
+        <div class="all-list">
+            <div th:each="memo : ${memos}" class="list">
+                <div class="title-wrapper">
+                    <form method="post" class="title"
+                          th:action="@{/memos/{id}/edit(id=${memo.id})}"
+                          th:classappend="${memo.check} ? ' completed'">
 
-                    <input type="hidden" name="id" th:value="${memo.id}" />
+                        <button type="submit" class="check" th:classappend="${memo.check} ? ' checked'" disabled>
+                            <i class="fa fa-regular fa-circle" th:if="${!memo.check}"></i>
+                            <i class="fa fa-circle-check" th:if="${memo.check}"></i>
+                        </button>
 
-                    <button type="submit" name="action" value="check" class="check"
-                            th:classappend="${memo.check} ? ' checked'" disabled>
-                        <i class="fa fa-regular fa-circle" th:if="${!memo.check}"></i>
-                        <i class="fa fa-circle-check" th:if="${memo.check}"></i>
-                    </button>
+                        <span th:if="${memo.id != memoToEdit.id}" th:text="${memo.content}" class="memo-content"></span>
+                        <input th:if="${memo.id == memoToEdit.id}" type="text" name="content"
+                               th:value="${memoToEdit.content}" class="edit-input" autofocus/>
 
-                    <span th:if="${memo.id != memoToEdit.id}" th:text="${memo.content}"></span>
-                    <input th:if="${memo.id == memoToEdit.id}" type="text" name="content"
-                           th:value="${memoToEdit.content}" class="edit-input" autofocus/>
-
-                    <button type="submit" th:if="${memo.id == memoToEdit.id}" class="save">
-                        <i class="fa fa-check"></i>
-                    </button>
-                </form>
-            </li>
-        </ul>
+                        <button type="submit" th:if="${memo.id == memoToEdit.id}" class="save">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
         <div class="back-button-wrapper">
-            <button type="button" class="back-button" th:onclick="|location.href='@{/}'|">
+            <button type="button" class="back-button" th:onclick="|location.href='@{/memos}'|">
                 <i class="fa fa-arrow-left"></i>
             </button>
         </div>
 
     </section>
     <section class="end">
-        <form method="post" th:action="@{/memo/save}" class="write">
+        <form method="post" th:action class="write">
             <input type="text" class="text" name="content" placeholder="메모를 입력하세요." disabled>
             <button type="submit" class="item-add-button" disabled>
                 <i class="fa fa-square-plus"></i>
