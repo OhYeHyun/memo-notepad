@@ -1,11 +1,15 @@
 package com.yehyun.memo.notepad.controller;
 
 import com.yehyun.memo.notepad.domain.Memo;
+import com.yehyun.memo.notepad.domain.form.MemoSaveForm;
+import com.yehyun.memo.notepad.domain.form.MemoUpdateForm;
 import com.yehyun.memo.notepad.repository.MemoRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,14 +24,22 @@ public class MemoController {
 
     @GetMapping
     public String listMemos(Model model) {
+        model.addAttribute("memoSaveForm", new MemoSaveForm());
         model.addAttribute("memos", memoRepository.getAll());
         return "memo";
     }
 
     @PostMapping
-    public String createMemo(@RequestParam("content") String content) {
-        memoRepository.save(new Memo(content));
-        log.info("저장됨 {}", content);
+    public String createMemo(@Valid @ModelAttribute MemoSaveForm memo, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            log.info("errors={}", bindingResult);
+            model.addAttribute("memos", memoRepository.getAll());
+            return "/memo";
+        }
+
+        memoRepository.save(new Memo(memo.getContent()));
+        log.info("저장됨 {}", memo.getContent());
         return "redirect:/memos";
     }
 
@@ -53,15 +65,21 @@ public class MemoController {
         Memo memo = memoRepository.findById(id);
         List<Memo> memoList = memoRepository.getAll();
 
-        model.addAttribute("memoToEdit", memo);
+        model.addAttribute("memoUpdateForm", memo);
         model.addAttribute("memos", memoList);
         return "editMemo";
     }
 
     @PostMapping("/{id}/edit")
-    public String edit(@PathVariable Long id, @RequestParam String content) {
-        Memo memo = memoRepository.findById(id);
-        memo.setContent(content);
+    public String edit(@PathVariable Long id, @Valid @ModelAttribute MemoUpdateForm memo, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("memos", memoRepository.getAll());
+            return "editMemo";
+        }
+
+        Memo savedMemo = memoRepository.findById(id);
+        savedMemo.setContent(memo.getContent());
         return "redirect:/memos";
     }
 }

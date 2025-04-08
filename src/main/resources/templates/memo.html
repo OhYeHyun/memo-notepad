@@ -26,7 +26,7 @@
             <div th:each="memo : ${memos}" class="list">
 
                 <div class="title-wrapper">
-                    <!-- 체크 및 내용 출력 -->
+
                     <form method="post" class="title" th:action="@{/memos/{id}/toggle(id=${memo.id})}" th:classappend="${memo.check} ? ' completed'">
                         <button type="submit" class="check" th:classappend="${memo.check} ? ' checked'">
                             <i class="fa fa-regular fa-circle" th:if="${!memo.check}"></i>
@@ -36,7 +36,6 @@
                         <span th:text="${memo.content}" class="memo-content"></span>
                     </form>
 
-                    <!-- 편집/삭제 버튼 그룹 -->
                     <div class="btn-group">
                         <a class="edit" th:href="@{/memos/{id}/edit(id=${memo.id})}">
                             <i class="fa fa-pen"></i>
@@ -50,13 +49,22 @@
                         </form>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
     <section class="end">
-        <form method="post" th:action class="write">
-            <input type="text" class="text" name="content" placeholder="메모를 입력하세요." autofocus>
+        <form method="post" th:action class="write" th:object="${memoSaveForm}">
+            <div class="form-group">
+                <input type="text"
+                       class="text"
+                       placeholder="메모를 입력하세요."
+                       th:field="*{content}"
+                       th:classappend="${#fields.hasErrors('content')} ? 'error' : ''"
+                       autofocus />
+                <div class="field-error" th:if="${#fields.hasErrors('content')}"
+                     th:errors="*{content}">* 메모를 입력해주세요</div>
+            </div>
+
             <button type="submit" class="item-add-button">
                 <i class="fa fa-square-plus"></i>
             </button>
