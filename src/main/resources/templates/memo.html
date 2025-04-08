@@ -42,7 +42,6 @@
                         </a>
 
                         <form method="post" th:action="@{/memos/{id}/delete(id=${memo.id})}">
-                            <input type="hidden" name="id" th:value="${memo.id}" />
                             <button type="submit" class="delete">
                                 <i class="fa fa-trash"></i>
                             </button>

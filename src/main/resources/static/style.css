@@ -43,7 +43,7 @@ body {
 .title {
     justify-content: space-between;
     position: relative;
-    margin: 5px;
+    margin: 5px 0;
     color: rgb(202, 127, 127);
     height: 45px;
     background-color: rgba(253, 230, 199, 0.5);
@@ -57,16 +57,6 @@ body {
     &:hover {
         background-color: rgba(192, 252, 249, 0.192);
         color: rgb(150, 97, 97);
-        & .edit {
-            color: rgb(150, 97, 97);
-            animation: rotate_button 0.5s infinite;
-            transform: scale(1.1);
-        }
-        & .delete {
-            color: rgb(150, 97, 97);
-            animation: rotate_button 0.5s infinite;
-            transform: scale(1.1);
-        }
         & .check {
             color: rgb(129, 205, 133);
             border-radius: 50%;
@@ -89,19 +79,31 @@ body {
 
 .title-wrapper {
     position: relative;
+
+    &:hover {
+        & .edit,
+        & .delete {
+            color: rgb(150, 97, 97);
+            animation: rotate_button 0.5s infinite;
+            transform: scale(1.1);
+        }
+    }
 }
 
 .edit-input {
     width: 100%;
-    box-sizing: border-box;
-    height: 40px;
-    border-radius: 9px;
-    font-size: 1.1rem;
+    max-width: 100%;
+    height: 2.5rem;
+    font-size: 1rem;
     padding: 0 10px;
+    border: none;
+    border-radius: 9px;
+    box-sizing: border-box;
     color: rgb(130, 60, 60);
     background-color: rgb(255, 255, 255);
-    border: 1px solid #ccc;
-    transition: border-color 0.2s, background-color 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .all-list {
@@ -112,8 +114,8 @@ body {
 }
 
 .delete {
-    position: relative; /* absolute → relative */
-    right: 0;            /* 필요 없음 */
+    position: relative;
+    right: 0;
     display: flex;
     color: rgb(202, 127, 127);
     background-color: transparent;
@@ -162,8 +164,8 @@ body {
 }
 
 .edit {
-    position: relative; /* absolute → relative */
-    right: 0;            /* 필요 없음 */
+    position: relative;
+    right: 0;
     display: flex;
     color: rgb(202, 127, 127);
     background-color: transparent;
@@ -312,19 +314,21 @@ body {
 }
 
 .text {
-    flex-grow: 1;
-    height: 42px;
+    width: 100%;
+    max-width: 100%;
+    height: 2.8rem;
     font-size: 1rem;
+    padding: 0 10px;
     border: none;
     border-radius: 10px;
-    padding: 0 10px;
-    color: rgb(90, 90, 90);
+    box-sizing: border-box;
 }
 
 .text::placeholder {
     color: rgba(150, 150, 150, 0.7);
     font-style: italic;
 }
+
 .text.error,
 .edit-input.error {
     border: 2px solid red;
@@ -333,13 +337,14 @@ body {
 
 .field-error {
     position: absolute;
-    bottom: -18px; /* 입력창 아래 고정 */
+    bottom: -18px;
     left: 10px;
     color: red;
     font-size: 0.75rem;
     font-weight: 500;
     line-height: 1.2;
 }
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -347,6 +352,7 @@ body {
     flex-grow: 1;
     position: relative;
 }
+
 @keyframes rotate_button {
     from {
         transform: rotate(10deg);
