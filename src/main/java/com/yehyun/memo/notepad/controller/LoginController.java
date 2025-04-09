@@ -35,14 +35,15 @@ public class LoginController {
     public String login(@ModelAttribute LoginForm form, BindingResult bindingResult,
                         @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
-        if (bindingResult.hasErrors()) {
-            return "login/login";
-        }
-
         Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
 
         if (loginMember == null) {
-            bindingResult.reject("loginFail", "아이디 또는 비밀번호가 맞지 않습니다.");
+            bindingResult.reject("login", "아이디 또는 비밀번호가 맞지 않습니다.");
+            return "login/login";
+        }
+
+        if (bindingResult.hasErrors()) {
+            log.info("오류 발생: {}", bindingResult);
             return "login/login";
         }
 
@@ -53,17 +54,17 @@ public class LoginController {
         return "redirect:" + redirectURL;
     }
 
-    @GetMapping("/save")
+    @GetMapping("/signup")
     public String saveForm() {
-        return "login/save";
+        return "login/signup";
     }
 
-    @PostMapping("/save")
+    @PostMapping("/signup")
     public String save(@ModelAttribute MemberSaveForm form, BindingResult bindingResult,
                        @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
         if (bindingResult.hasErrors()) {
-            return "login/save";
+            return "login/signup";
         }
 
         Member member = new Member();
