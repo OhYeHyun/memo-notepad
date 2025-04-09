@@ -1,4 +1,4 @@
-package com.yehyun.memo.notepad.domain;
+package com.yehyun.memo.notepad.domain.memo;
 
 import lombok.Data;
 

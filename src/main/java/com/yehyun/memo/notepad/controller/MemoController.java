@@ -1,8 +1,8 @@
 package com.yehyun.memo.notepad.controller;
 
-import com.yehyun.memo.notepad.domain.Memo;
-import com.yehyun.memo.notepad.domain.form.MemoSaveForm;
-import com.yehyun.memo.notepad.domain.form.MemoUpdateForm;
+import com.yehyun.memo.notepad.domain.memo.Memo;
+import com.yehyun.memo.notepad.domain.memo.form.MemoSaveForm;
+import com.yehyun.memo.notepad.domain.memo.form.MemoUpdateForm;
 import com.yehyun.memo.notepad.repository.MemoRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,12 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/memos")
+@RequestMapping("/notepad/memos")
 public class MemoController {
 
     private final MemoRepository memoRepository;
 
-    @GetMapping
+    @GetMapping()
     public String listMemos(Model model) {
         model.addAttribute("memoSaveForm", new MemoSaveForm());
         model.addAttribute("memos", memoRepository.getAll());
@@ -40,7 +40,7 @@ public class MemoController {
 
         memoRepository.save(new Memo(memo.getContent()));
         log.info("저장됨 {}", memo.getContent());
-        return "redirect:/memos";
+        return "redirect:/notepad/memos";
     }
 
     @PostMapping("/{id}/toggle")
@@ -48,14 +48,14 @@ public class MemoController {
         Memo memo = memoRepository.findById(id);
         memo.setCheck(!memo.isCheck());
 
-        return "redirect:/memos";
+        return "redirect:/notepad/memos";
     }
 
     @PostMapping("/{id}/delete")
     public String deleteMemo(@PathVariable("id") Long id) {
         Memo memo = memoRepository.findById(id);
         memoRepository.delete(memo);
-        return "redirect:/memos";
+        return "redirect:/notepad/memos";
     }
 
     @GetMapping("/{id}/edit")
@@ -80,6 +80,6 @@ public class MemoController {
 
         Memo savedMemo = memoRepository.findById(id);
         savedMemo.setContent(memo.getContent());
-        return "redirect:/memos";
+        return "redirect:/notepad/memos";
     }
 }

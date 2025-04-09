@@ -1,7 +1,6 @@
 package com.yehyun.memo.notepad.repository;
 
-import com.yehyun.memo.notepad.domain.Memo;
-import com.yehyun.memo.notepad.domain.form.MemoSaveForm;
+import com.yehyun.memo.notepad.domain.memo.Memo;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

@@ -29,7 +29,7 @@
 
                     <form th:if="${memo.id == memoUpdateForm?.id}"
                           method="post"
-                          th:action="@{/memos/{id}/edit(id=${memo.id})}"
+                          th:action="@{/notepad/memos/{id}/edit(id=${memo.id})}"
                           th:object="${memoUpdateForm}"
                           class="title">
 
@@ -65,7 +65,7 @@
             </div>
         </div>
         <div class="back-button-wrapper">
-            <button type="button" class="back-button" th:onclick="|location.href='@{/memos}'|">
+            <button type="button" class="back-button" th:onclick="|location.href='@{/notepad/memos}'|">
                 <i class="fa fa-arrow-left"></i>
             </button>
         </div>

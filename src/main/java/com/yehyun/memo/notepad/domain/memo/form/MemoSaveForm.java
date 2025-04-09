@@ -1,4 +1,4 @@
-package com.yehyun.memo.notepad.domain.form;
+package com.yehyun.memo.notepad.domain.memo.form;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
