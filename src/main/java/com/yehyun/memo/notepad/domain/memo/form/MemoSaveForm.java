@@ -7,11 +7,7 @@ import lombok.Data;
 @Data
 public class MemoSaveForm {
 
-    private Long id;
-
     @NotBlank
     @Size(max = 30)
     private String content;
-
-    private boolean check;
 }

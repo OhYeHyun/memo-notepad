@@ -14,7 +14,7 @@
             href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
             rel="stylesheet"
     />
-    <link rel="stylesheet" href="/style.css"/>
+    <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
 <div class="outer">
@@ -59,7 +59,7 @@
                        class="text"
                        placeholder="메모를 입력하세요."
                        th:field="*{content}"
-                       th:classappend="${#fields.hasErrors('content')} ? 'error' : ''"
+                       th:errorclass="error"
                        autofocus />
                 <div class="field-error" th:if="${#fields.hasErrors('content')}"
                      th:errors="*{content}">* 메모를 입력해주세요</div>
