@@ -7,10 +7,10 @@ import lombok.Data;
 public class MemberSaveForm {
 
     @NotBlank
-    private String loginId;
+    private String name;
 
     @NotBlank
-    private String name;
+    private String loginId;
 
     @NotBlank
     private String password;

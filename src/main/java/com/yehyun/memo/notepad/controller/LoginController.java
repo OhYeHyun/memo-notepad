@@ -7,6 +7,7 @@ import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.service.LoginService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -32,7 +33,7 @@ public class LoginController {
     }
 
     @PostMapping
-    public String login(@ModelAttribute LoginForm form, BindingResult bindingResult,
+    public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult,
                         @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
         Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
@@ -55,15 +56,23 @@ public class LoginController {
     }
 
     @GetMapping("/signup")
-    public String saveForm() {
+    public String saveForm(Model model) {
+        model.addAttribute("memberSaveForm", new MemberSaveForm());
         return "login/signup";
     }
 
     @PostMapping("/signup")
-    public String save(@ModelAttribute MemberSaveForm form, BindingResult bindingResult,
+    public String save(@Valid @ModelAttribute MemberSaveForm form, BindingResult bindingResult,
                        @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
+        if (memberRepository.findByLoginId(form.getLoginId()).isPresent()) {
+            bindingResult.reject("login", "이미 존재하는 아이디입니다.");
+            log.info("오류 발생: {}", bindingResult);
+            return "login/signup";
+        }
+
         if (bindingResult.hasErrors()) {
+            log.info("오류 발생: {}", bindingResult);
             return "login/signup";
         }
 
@@ -75,6 +84,7 @@ public class LoginController {
 
         HttpSession session = request.getSession();
         session.setAttribute("loginMemberId", member.getId());
+        log.info("로그인 세션 생성: {}", member.getId());
 
         return "redirect:" + redirectURL;
     }

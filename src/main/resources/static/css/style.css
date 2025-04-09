@@ -376,7 +376,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin: 10px 0;
+    margin: 20px 0;
     flex-grow: 1;
     position: relative;
 }
