@@ -14,8 +14,9 @@ public class MemoRepository {
 
     private final EntityManager em;
 
-    public void save(Memo memo) {
+    public Memo save(Memo memo) {
         em.persist(memo);
+        return memo;
     }
 
     public void delete(Memo memo) {

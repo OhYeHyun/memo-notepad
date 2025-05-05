@@ -19,9 +19,9 @@ public class MemoService {
         return memoRepository.findAll();
     }
 
-    public void saveMemo(String content, String writerId) {
+    public Memo saveMemo(String content, String writerId) {
         Memo memo = new Memo(content, writerId);
-        memoRepository.save(memo);
+        return memoRepository.save(memo);
     }
 
     public void toggleMemo(Long id) {

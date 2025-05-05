@@ -1,5 +1,6 @@
 package com.yehyun.memo.notepad.controller;
 
+import com.yehyun.memo.notepad.domain.memo.Memo;
 import com.yehyun.memo.notepad.domain.memo.form.MemoSaveForm;
 import com.yehyun.memo.notepad.domain.memo.form.MemoUpdateForm;
 import com.yehyun.memo.notepad.service.MemoService;
@@ -47,8 +48,8 @@ public class MemoController {
         }
 
         String writerId = (loginMemberId != null) ? String.valueOf(loginMemberId) : guestId;
-        memoService.saveMemo(form.getContent(), writerId);
-        log.info("저장됨 {}", form.getContent());
+        Memo memo = memoService.saveMemo(form.getContent(), writerId);
+        log.info("저장됨 {}", memo.getContent());
 
         return "redirect:/notepad/memos";
     }
