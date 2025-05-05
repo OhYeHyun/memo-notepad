@@ -19,7 +19,9 @@ public class MemoService {
         return memoRepository.findAll();
     }
 
-    public Memo saveMemo(String content, String writerId) {
+    public Memo saveMemo(String content, Long loginMemberId, String guestId) {
+        String writerId = decideWriterId(loginMemberId, guestId);
+
         Memo memo = new Memo(content, writerId);
         return memoRepository.save(memo);
     }
@@ -41,5 +43,9 @@ public class MemoService {
     public void updateMemo(Long id, String content, boolean isChecked) {
         Memo memo = memoRepository.findById(id).orElseThrow();
         memo.update(content, isChecked);
+    }
+
+    private String decideWriterId(Long loginMemberId, String guestId) {
+        return (loginMemberId != null) ? String.valueOf(loginMemberId) : guestId;
     }
 }

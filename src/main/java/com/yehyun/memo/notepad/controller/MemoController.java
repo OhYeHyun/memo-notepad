@@ -39,7 +39,7 @@ public class MemoController {
         if (loginMemberId == null && guestId == null) {
             guestId = UUID.randomUUID().toString();
             request.getSession().setAttribute("guestId", guestId);
-            return "redirect:/notepad/memos";
+            return "redirect:/";
         }
 
         if (bindingResult.hasErrors()) {
@@ -47,8 +47,7 @@ public class MemoController {
             return "memo/memo";
         }
 
-        String writerId = (loginMemberId != null) ? String.valueOf(loginMemberId) : guestId;
-        Memo memo = memoService.saveMemo(form.getContent(), writerId);
+        Memo memo = memoService.saveMemo(form.getContent(), loginMemberId, guestId);
         log.info("저장됨 {}", memo.getContent());
 
         return "redirect:/notepad/memos";
