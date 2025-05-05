@@ -5,7 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 //CREATE TABLE member (
 //        id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 //        password VARCHAR(255) NOT NULL
 //);
 
-@Slf4j
 @Data
 @Entity
 public class Member {
@@ -37,8 +35,6 @@ public class Member {
     }
 
     public boolean isPasswordMatch(String rawPassword) {
-        log.info("password={}, rawPassword={}", password, rawPassword);
-
         return password.equals(rawPassword);
     }
 }

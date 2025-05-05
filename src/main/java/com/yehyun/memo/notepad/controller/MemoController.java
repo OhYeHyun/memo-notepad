@@ -31,7 +31,7 @@ public class MemoController {
 
     @PostMapping
     public String createMemo(@Valid @ModelAttribute MemoSaveForm form, BindingResult bindingResult,
-                             @SessionAttribute(name = "loginMember", required = false) Long loginMemberId,
+                             @SessionAttribute(name = "loginMemberId", required = false) Long loginMemberId,
                              @SessionAttribute(name = "guestId", required = false) String guestId,
                              HttpServletRequest request, Model model) {
 

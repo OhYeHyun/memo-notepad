@@ -36,7 +36,6 @@ public class LoginController {
     public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult,
                         @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
-        log.info("loginId={}, password={}", form.getLoginId(), form.getPassword());
         Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
 
         if (loginMember == null) {
