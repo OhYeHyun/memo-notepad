@@ -33,9 +33,9 @@
                           th:object="${memoUpdateForm}"
                           class="title">
 
-                        <button type="submit" class="check" th:classappend="${memo.check} ? ' checked'" disabled>
-                            <i class="fa fa-regular fa-circle" th:if="${!memo.check}"></i>
-                            <i class="fa fa-circle-check" th:if="${memo.check}"></i>
+                        <button type="submit" class="check" th:classappend="${memo.isChecked} ? ' checked'" disabled>
+                            <i class="fa fa-regular fa-circle" th:if="${!memo.isChecked}"></i>
+                            <i class="fa fa-circle-check" th:if="${memo.isChecked}"></i>
                         </button>
 
                         <div class="form-group title-wrapper">
@@ -53,10 +53,10 @@
                         </button>
                     </form>
 
-                    <div th:if="${memo.id != memoUpdateForm?.id}" class="title" th:classappend="${memo.check} ? ' completed'">
-                        <button type="button" class="check" th:classappend="${memo.check} ? ' checked'" disabled>
-                            <i class="fa fa-regular fa-circle" th:if="${!memo.check}"></i>
-                            <i class="fa fa-circle-check" th:if="${memo.check}"></i>
+                    <div th:if="${memo.id != memoUpdateForm?.id}" class="title" th:classappend="${memo.isChecked} ? ' completed'">
+                        <button type="button" class="check" th:classappend="${memo.isChecked} ? ' checked'" disabled>
+                            <i class="fa fa-regular fa-circle" th:if="${!memo.isChecked}"></i>
+                            <i class="fa fa-circle-check" th:if="${memo.isChecked}"></i>
                         </button>
 
                         <span th:text="${memo.content}" class="memo-content"></span>

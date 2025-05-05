@@ -1,10 +1,8 @@
 package com.yehyun.memo.notepad.controller;
 
-import com.yehyun.memo.notepad.domain.member.Member;
-import com.yehyun.memo.notepad.domain.memo.Memo;
 import com.yehyun.memo.notepad.domain.memo.form.MemoSaveForm;
 import com.yehyun.memo.notepad.domain.memo.form.MemoUpdateForm;
-import com.yehyun.memo.notepad.repository.MemoRepository;
+import com.yehyun.memo.notepad.service.MemoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -23,12 +20,12 @@ import java.util.UUID;
 @RequestMapping("/notepad/memos")
 public class MemoController {
 
-    private final MemoRepository memoRepository;
+    private final MemoService memoService;
 
     @GetMapping
     public String listMemos(Model model) {
         model.addAttribute("memoSaveForm", new MemoSaveForm());
-        model.addAttribute("memos", memoRepository.getAll());
+        model.addAttribute("memos", memoService.getAllMemos());
         return "memo/memo";
     }
 
@@ -45,29 +42,26 @@ public class MemoController {
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoRepository.getAll());
+            model.addAttribute("memos", memoService.getAllMemos());
             return "memo/memo";
         }
 
         String writerId = (loginMemberId != null) ? String.valueOf(loginMemberId) : guestId;
-
-        Memo memo = new Memo(form.getContent(), writerId);
-        memoRepository.save(memo);
+        memoService.saveMemo(form.getContent(), writerId);
         log.info("저장됨 {}", form.getContent());
+
         return "redirect:/notepad/memos";
     }
 
     @PostMapping("/{id}/toggle")
     public String toggleCheck(@PathVariable("id") Long id) {
-        Memo memo = memoRepository.findById(id);
-        memo.toggleCheck();
+        memoService.toggleMemo(id);
         return "redirect:/notepad/memos";
     }
 
     @PostMapping("/{id}/delete")
     public String deleteMemo(@PathVariable("id") Long id) {
-        Memo memo = memoRepository.findById(id);
-        memoRepository.delete(memo);
+        memoService.deleteMemo(id);
         return "redirect:/notepad/memos";
     }
 
@@ -75,11 +69,8 @@ public class MemoController {
     public String editForm(@PathVariable Long id, Model model) {
         log.info("수정 {}", id);
 
-        Memo memo = memoRepository.findById(id);
-        List<Memo> memoList = memoRepository.getAll();
-
-        model.addAttribute("memoUpdateForm", memo);
-        model.addAttribute("memos", memoList);
+        model.addAttribute("memoUpdateForm", memoService.findById(id));
+        model.addAttribute("memos", memoService.getAllMemos());
         return "memo/editMemo";
     }
 
@@ -87,13 +78,11 @@ public class MemoController {
     public String edit(@Valid @ModelAttribute MemoUpdateForm form, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoRepository.getAll());
+            model.addAttribute("memos", memoService.getAllMemos());
             return "memo/editMemo";
         }
 
-        Memo savedMemo = memoRepository.findById(form.getId());
-        savedMemo.update(form.getContent());
-        savedMemo.setCheck(form.isCheck());
+        memoService.updateMemo(form.getId(), form.getContent(), form.isCheck());
         return "redirect:/notepad/memos";
     }
 }

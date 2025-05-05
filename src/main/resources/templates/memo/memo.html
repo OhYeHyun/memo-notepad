@@ -28,10 +28,10 @@
                 <div class="title-wrapper">
 
                     <form method="post" class="title" th:action="@{/notepad/memos/{id}/toggle(id=${memo.id})}"
-                          th:classappend="${memo.check} ? ' completed'">
-                        <button type="submit" class="check" th:classappend="${memo.check} ? ' checked'">
-                            <i class="fa fa-regular fa-circle" th:if="${!memo.check}"></i>
-                            <i class="fa fa-circle-check" th:if="${memo.check}"></i>
+                          th:classappend="${memo.isChecked} ? ' completed'">
+                        <button type="submit" class="check" th:classappend="${memo.isChecked} ? ' checked'">
+                            <i class="fa fa-regular fa-circle" th:if="${!memo.isChecked}"></i>
+                            <i class="fa fa-circle-check" th:if="${memo.isChecked}"></i>
                         </button>
 
                         <span th:text="${memo.content}" class="memo-content"></span>
