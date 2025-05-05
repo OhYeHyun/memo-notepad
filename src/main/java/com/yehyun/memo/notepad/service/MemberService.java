@@ -20,6 +20,10 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
+    public Member findById(Long id) {
+        return memberRepository.findById(id).orElseThrow();
+    }
+
     private void isDuplicated(String loginId) {
         if (memberRepository.findByLoginId(loginId).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
