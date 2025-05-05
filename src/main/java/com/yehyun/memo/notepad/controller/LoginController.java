@@ -3,8 +3,8 @@ package com.yehyun.memo.notepad.controller;
 import com.yehyun.memo.notepad.domain.login.form.LoginForm;
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.domain.member.form.MemberSaveForm;
-import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.service.LoginService;
+import com.yehyun.memo.notepad.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ import java.util.UUID;
 public class LoginController {
 
     private final LoginService loginService;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @GetMapping
     public String loginForm(Model model) {
@@ -36,6 +36,7 @@ public class LoginController {
     public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult,
                         @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
+        log.info("loginId={}, password={}", form.getLoginId(), form.getPassword());
         Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
 
         if (loginMember == null) {
@@ -65,28 +66,23 @@ public class LoginController {
     public String save(@Valid @ModelAttribute MemberSaveForm form, BindingResult bindingResult,
                        @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
-        if (memberRepository.findByLoginId(form.getLoginId()).isPresent()) {
-            bindingResult.reject("login", "이미 존재하는 아이디입니다.");
-            log.info("오류 발생: {}", bindingResult);
-            return "login/signup";
-        }
-
         if (bindingResult.hasErrors()) {
             log.info("오류 발생: {}", bindingResult);
             return "login/signup";
         }
 
-        Member member = new Member();
-        member.setLoginId(form.getLoginId());
-        member.setPassword(form.getPassword());
-        member.setName(form.getName());
-        memberRepository.save(member);
+        try {
+            Member member = memberService.joinMember(form.getName(), form.getLoginId(), form.getPassword());
 
-        HttpSession session = request.getSession();
-        session.setAttribute("loginMemberId", member.getId());
-        log.info("로그인 세션 생성: {}", member.getId());
+            HttpSession session = request.getSession();
+            session.setAttribute("loginMemberId", member.getId());
+            log.info("로그인 세션 생성: {}", member.getId());
+            return "redirect:" + redirectURL;
 
-        return "redirect:" + redirectURL;
+        } catch (IllegalArgumentException e) {
+            bindingResult.reject("login", e.getMessage());
+            return "login/signup";
+        }
     }
 
     @GetMapping("/no")

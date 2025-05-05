@@ -6,14 +6,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-/**
- * CREATE TABLE memo (
- *     id BIGINT AUTO_INCREMENT PRIMARY KEY,
- *     content TEXT NOT NULL,
- *     is_checked BOOLEAN NOT NULL DEFAULT FALSE,
- *     writer_id VARCHAR(255) NOT NULL
- * );
- */
+//CREATE TABLE memo (
+//       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+//       content TEXT NOT NULL,
+//       is_checked BOOLEAN NOT NULL DEFAULT FALSE,
+//       writer_id VARCHAR(255) NOT NULL
+//);
 
 @Data
 @Entity

@@ -1,7 +1,6 @@
 package com.yehyun.memo.notepad;
 
-import com.yehyun.memo.notepad.domain.member.Member;
-import com.yehyun.memo.notepad.repository.MemberRepository;
+import com.yehyun.memo.notepad.service.MemberService;
 import com.yehyun.memo.notepad.service.MemoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -15,7 +14,7 @@ import java.util.UUID;
 public class TestDataInit {
 
     private final MemoService memoService;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @EventListener(ApplicationReadyEvent.class)
     public void initData() {
@@ -23,11 +22,6 @@ public class TestDataInit {
         memoService.saveMemo("테스트 1", guestId);
         memoService.saveMemo("테스트 2", guestId);
 
-        Member member = new Member();
-        member.setLoginId("test");
-        member.setPassword("test!");
-        member.setName("테스터");
-
-        memberRepository.save(member);
+        memberService.joinMember("테스터", "test", "test!");
     }
 }

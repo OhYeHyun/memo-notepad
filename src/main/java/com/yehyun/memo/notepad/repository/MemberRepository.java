@@ -1,34 +1,40 @@
 package com.yehyun.memo.notepad.repository;
 
 import com.yehyun.memo.notepad.domain.member.Member;
+import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-
 @Repository
+@RequiredArgsConstructor
 public class MemberRepository {
 
-    private static Map<Long, Member> store = new HashMap<>();
-    private static long sequence = 0L;
+    private final EntityManager em;
 
     public Member save(Member member) {
-        member.setId(++sequence);
-        store.put(member.getId(), member);
+        em.persist(member);
         return member;
     }
 
-    public Member findById(Long id) {
-        return store.get(id);
+    public Optional<Member> findById(Long id) {
+        Member member = em.find(Member.class, id);
+        return Optional.ofNullable(member);
     }
 
     public Optional<Member> findByLoginId(String loginId) {
-        return findAll().stream()
-                .filter(m -> m.getLoginId().equals(loginId))
-                .findFirst();
+        String jpql = "select m from Member m where m.loginId = :loginId";
+
+        List<Member> result = em.createQuery(jpql, Member.class)
+                .setParameter("loginId", loginId)
+                .getResultList();
+
+        return result.stream().findFirst();
     }
 
     public List<Member> findAll() {
-        return new ArrayList<>(store.values());
+        String jpql = "select m from Member m";
+        return em.createQuery(jpql, Member.class).getResultList();
     }
 }
