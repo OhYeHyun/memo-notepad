@@ -16,6 +16,6 @@ public class LoginService {
     public Member login(String loginId, String password) {
         return memberRepository.findByLoginId(loginId)
                 .filter(m -> m.isPasswordMatch(password))
-                .orElse(null);
+                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 맞지 않습니다."));
     }
 }

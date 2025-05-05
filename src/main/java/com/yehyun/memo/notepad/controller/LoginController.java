@@ -36,23 +36,23 @@ public class LoginController {
     public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult,
                         @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
 
-        Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
-
-        if (loginMember == null) {
-            bindingResult.reject("login", "아이디 또는 비밀번호가 맞지 않습니다.");
-            return "login/login";
-        }
-
         if (bindingResult.hasErrors()) {
             log.info("오류 발생: {}", bindingResult);
             return "login/login";
         }
 
-        HttpSession session = request.getSession();
-        session.setAttribute("loginMemberId", loginMember.getId());
-        log.info("로그인 세션 생성: {}", loginMember.getId());
+        try {
+            Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
+            HttpSession session = request.getSession();
+            session.setAttribute("loginMemberId", loginMember.getId());
 
-        return "redirect:" + redirectURL;
+            log.info("로그인 세션 생성: {}", loginMember.getId());
+            return "redirect:" + redirectURL;
+
+        } catch (IllegalArgumentException e) {
+            bindingResult.reject("login", e.getMessage());
+            return "login/login";
+        }
     }
 
     @GetMapping("/signup")
