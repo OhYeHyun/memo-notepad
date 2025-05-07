@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -29,12 +30,16 @@ class LoginServiceTest {
     void login_fail() {
         memberService.joinMember("테스터", "test", "test!");
 
-        Member case1 = loginService.login("test", "wrong_pw");
-        Member case2 = loginService.login("wrong_id", "test!");
-        Member case3 = loginService.login("wrong_id", "wrong_pw");
+        assertThatThrownBy(() -> loginService.login("test", "wrong_pw"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("아이디 또는 비밀번호가 맞지 않습니다.");
 
-        assertThat(case1).isNull();
-        assertThat(case2).isNull();
-        assertThat(case3).isNull();
+        assertThatThrownBy(() -> loginService.login("wrong_id", "test!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("아이디 또는 비밀번호가 맞지 않습니다.");
+
+        assertThatThrownBy(() -> loginService.login("wrong_id", "wrong_pw"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("아이디 또는 비밀번호가 맞지 않습니다.");
     }
 }
