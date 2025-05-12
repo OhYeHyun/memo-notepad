@@ -63,9 +63,11 @@ class MemoServiceTest {
     @Test
     void getAllMemos() {
         Memo memo1 = memoService.saveMemo("111", 1L, null);
-        Memo memo2 = memoService.saveMemo("222", 2L, null);
+        Memo memo2 = memoService.saveMemo("111", 1L, null);
 
-        List<Memo> memos = memoService.getAllMemos();
+        Memo memo3 = memoService.saveMemo("222", 2L, null);
+
+        List<Memo> memos = memoService.getAllMemos(1L, null);
         assertThat(memos).containsExactly(memo1, memo2);
     }
 }
