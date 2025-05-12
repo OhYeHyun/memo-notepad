@@ -15,8 +15,10 @@ public class MemoService {
 
     private final MemoRepository memoRepository;
 
-    public List<Memo> getAllMemos() {
-        return memoRepository.findAll();
+    public List<Memo> getAllMemos(Long loginMemberId, String guestId) {
+        String writerId = decideWriterId(loginMemberId, guestId);
+
+        return memoRepository.findAll(writerId);
     }
 
     public Memo saveMemo(String content, Long loginMemberId, String guestId) {

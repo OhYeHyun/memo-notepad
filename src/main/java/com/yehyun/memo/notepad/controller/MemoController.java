@@ -24,9 +24,12 @@ public class MemoController {
     private final MemoService memoService;
 
     @GetMapping
-    public String listMemos(Model model) {
+    public String listMemos(Model model,
+                            @SessionAttribute(name = "loginMemberId", required = false) Long loginMemberId,
+                            @SessionAttribute(name = "guestId", required = false) String guestId) {
+
         model.addAttribute("memoSaveForm", new MemoSaveForm());
-        model.addAttribute("memos", memoService.getAllMemos());
+        model.addAttribute("memos", memoService.getAllMemos(loginMemberId, guestId));
         return "memo/memo";
     }
 
@@ -43,7 +46,7 @@ public class MemoController {
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoService.getAllMemos());
+            model.addAttribute("memos", memoService.getAllMemos(loginMemberId, guestId));
             return "memo/memo";
         }
 
@@ -66,19 +69,25 @@ public class MemoController {
     }
 
     @GetMapping("/{id}/edit")
-    public String editForm(@PathVariable Long id, Model model) {
+    public String editForm(@PathVariable Long id, Model model,
+                           @SessionAttribute(name = "loginMemberId", required = false) Long loginMemberId,
+                           @SessionAttribute(name = "guestId", required = false) String guestId) {
+
         log.info("수정 {}", id);
 
         model.addAttribute("memoUpdateForm", memoService.findById(id));
-        model.addAttribute("memos", memoService.getAllMemos());
+        model.addAttribute("memos", memoService.getAllMemos(loginMemberId, guestId));
         return "memo/editMemo";
     }
 
     @PostMapping("/{id}/edit")
-    public String edit(@Valid @ModelAttribute MemoUpdateForm form, BindingResult bindingResult, Model model) {
+    public String edit(@Valid @ModelAttribute MemoUpdateForm form,
+                       BindingResult bindingResult, Model model,
+                       @SessionAttribute(name = "loginMemberId", required = false) Long loginMemberId,
+                       @SessionAttribute(name = "guestId", required = false) String guestId) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoService.getAllMemos());
+            model.addAttribute("memos", memoService.getAllMemos(loginMemberId, guestId));
             return "memo/editMemo";
         }
 

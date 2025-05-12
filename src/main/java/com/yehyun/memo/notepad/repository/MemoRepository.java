@@ -28,8 +28,10 @@ public class MemoRepository {
         return Optional.ofNullable(memo);
     }
 
-    public List<Memo> findAll() {
-        String jpql = "select m from Memo m";
-        return em.createQuery(jpql, Memo.class).getResultList();
+    public List<Memo> findAll(String writerId) {
+        String jpql = "select m from Memo m where m.writerId like :writerId";
+        return em.createQuery(jpql, Memo.class)
+                .setParameter("writerId", writerId)
+                .getResultList();
     }
 }
