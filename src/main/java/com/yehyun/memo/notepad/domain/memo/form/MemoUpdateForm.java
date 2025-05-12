@@ -14,6 +14,4 @@ public class MemoUpdateForm {
     @NotBlank
     @Size(max = 30)
     private String content;
-
-    private boolean check;
 }

@@ -91,7 +91,7 @@ public class MemoController {
             return "memo/editMemo";
         }
 
-        memoService.updateMemo(form.getId(), form.getContent(), form.isCheck());
+        memoService.updateMemo(form.getId(), form.getContent());
         return "redirect:/notepad/memos";
     }
 }

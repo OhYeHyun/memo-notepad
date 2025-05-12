@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +20,10 @@ public class MemoService {
     public List<Memo> getAllMemos(Long loginMemberId, String guestId) {
         String writerId = decideWriterId(loginMemberId, guestId);
 
-        return memoRepository.findAll(writerId);
+        return memoRepository.findAll(writerId)
+                .stream()
+                .sorted(Comparator.comparing(Memo::getCreatedDate))
+                .collect(Collectors.toList());
     }
 
     public Memo saveMemo(String content, Long loginMemberId, String guestId) {
@@ -42,9 +47,9 @@ public class MemoService {
         return memoRepository.findById(id).orElseThrow();
     }
 
-    public void updateMemo(Long id, String content, boolean isChecked) {
+    public void updateMemo(Long id, String content) {
         Memo memo = memoRepository.findById(id).orElseThrow();
-        memo.update(content, isChecked);
+        memo.update(content);
     }
 
     private String decideWriterId(Long loginMemberId, String guestId) {
