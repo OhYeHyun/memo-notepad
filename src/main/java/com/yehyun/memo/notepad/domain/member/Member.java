@@ -1,9 +1,6 @@
 package com.yehyun.memo.notepad.domain.member;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 //CREATE TABLE member (
@@ -22,8 +19,11 @@ public class Member {
     private Long id;
 
     private String name;
+
+    @Column(unique = true)
     private String loginId;
     private String password;
+    private String role;
 
     public Member() {
     }
@@ -32,6 +32,7 @@ public class Member {
         this.name = name;
         this.loginId = loginId;
         this.password = password;
+        this.role = "ROLE_USER";
     }
 
     public boolean isPasswordMatch(String rawPassword) {

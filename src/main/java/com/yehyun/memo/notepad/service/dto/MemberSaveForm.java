@@ -1,4 +1,4 @@
-package com.yehyun.memo.notepad.domain.member.form;
+package com.yehyun.memo.notepad.service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
