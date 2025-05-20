@@ -1,29 +1,25 @@
 package com.yehyun.memo.notepad.controller;
 
 import com.yehyun.memo.notepad.domain.login.form.LoginForm;
-import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.service.GuestLoginService;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
-import com.yehyun.memo.notepad.service.LoginService;
 import com.yehyun.memo.notepad.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
-@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/login")
 public class LoginController {
 
     private final MemberService memberService;
+    private final GuestLoginService guestLoginService;
 
     @GetMapping
     public String loginForm(@RequestParam(required = false) String error, Model model) {
@@ -42,7 +38,6 @@ public class LoginController {
     public String save(@Valid @ModelAttribute MemberSaveForm form, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-            log.info("오류 발생: {}", bindingResult);
             return "login/signup";
         }
 
@@ -57,14 +52,14 @@ public class LoginController {
     }
 
     @GetMapping("/no")
-    public String noLogin(@SessionAttribute(name = "guestId", required = false) String guestId,
-                          HttpServletRequest request) {
+    public String noLogin(HttpServletResponse response) {
+        String token = guestLoginService.createGuestToken();
 
-        if (guestId == null) {
-            guestId = UUID.randomUUID().toString();
-            request.getSession().setAttribute("guestId", guestId);
-            log.info("새로운 게스트 UUID 생성: {}", guestId);
-        }
+        Cookie cookie = new Cookie("Authorization", token);
+        cookie.setMaxAge(216);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
 
         return "redirect:/notepad/memos";
     }
