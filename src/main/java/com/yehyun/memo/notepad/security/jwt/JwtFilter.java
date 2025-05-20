@@ -24,7 +24,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-        if (path.startsWith("/login") || path.startsWith("/login/signup") || path.startsWith("/css/**")) {
+        if (path.startsWith("/login") || path.startsWith("/login/signup") || path.startsWith("/css/")) {
             filterChain.doFilter(request, response);
             return;
         }
