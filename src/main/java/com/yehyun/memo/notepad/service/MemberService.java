@@ -3,6 +3,7 @@ package com.yehyun.memo.notepad.service;
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.repository.MemberRepository;
+import com.yehyun.memo.notepad.validator.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public Member joinMember(MemberSaveForm memberSaveForm) {
-        isDuplicated(memberSaveForm.getLoginId());
+        validateMemberSaveForm(memberSaveForm);
 
         Member member = new Member(
                 memberSaveForm.getName(),
@@ -32,9 +33,27 @@ public class MemberService {
         return memberRepository.findById(id).orElseThrow();
     }
 
-    private void isDuplicated(String loginId) {
+    private void validateMemberSaveForm(MemberSaveForm form) {
+        isDuplicatedLoginId(form.getLoginId());
+        validateFormatLoginId(form.getLoginId());
+        validateFormatPassword(form.getPassword());
+    }
+
+    private void isDuplicatedLoginId(String loginId) {
         if (memberRepository.findByLoginId(loginId).isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
+            throw new ValidationException("loginId", "error.loginId.duplicated");
+        }
+    }
+
+    private void validateFormatLoginId(String loginId) {
+        if (!loginId.matches("^[a-zA-Z0-9]+$")) {
+            throw new ValidationException("loginId", "error.loginId.format");
+        }
+    }
+
+    private void validateFormatPassword(String password) {
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            throw new ValidationException("password", "error.password.format");
         }
     }
 }

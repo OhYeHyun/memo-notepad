@@ -1,9 +1,9 @@
 package com.yehyun.memo.notepad.controller;
 
-import com.yehyun.memo.notepad.domain.login.form.LoginForm;
 import com.yehyun.memo.notepad.service.GuestLoginService;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.service.MemberService;
+import com.yehyun.memo.notepad.validator.ValidationException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -23,7 +23,6 @@ public class LoginController {
 
     @GetMapping
     public String loginForm(@RequestParam(required = false) String error, Model model) {
-        model.addAttribute("loginForm", new LoginForm());
         model.addAttribute("error", error);
         return "login/login";
     }
@@ -45,8 +44,9 @@ public class LoginController {
             memberService.joinMember(form);
             return "login/login";
 
-        } catch (IllegalArgumentException e) {
-            bindingResult.reject("login", e.getMessage());
+        } catch (ValidationException e) {
+            bindingResult.rejectValue(e.getField(), e.getErrorCode());
+
             return "login/signup";
         }
     }

@@ -363,9 +363,7 @@ body {
 }
 
 .field-error {
-    position: absolute;
-    bottom: -18px;
-    left: 10px;
+    margin-top: 4px;
     color: red;
     font-size: 0.75rem;
     font-weight: 500;
@@ -384,7 +382,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin: 20px 0;
+    margin: 10px 0;
     flex-grow: 1;
     position: relative;
 }
