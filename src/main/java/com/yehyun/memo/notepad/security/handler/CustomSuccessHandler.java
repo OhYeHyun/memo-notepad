@@ -28,7 +28,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String loginId = principalMember.getUsername();
         String role = getRoleFromAuthentication(authentication);
 
-        String token = jwtUtil.createJwt(name, loginId, role, 60 * 60 * 10L);
+        String token = jwtUtil.createJwt(name, loginId, role);
         response.addCookie(createCookie("Authorization", token));
         getRedirectStrategy().sendRedirect(request, response, "/");
     }

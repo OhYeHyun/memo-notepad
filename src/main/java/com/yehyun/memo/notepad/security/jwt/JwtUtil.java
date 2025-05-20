@@ -13,6 +13,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    private static final Long EXPIRED_MS = 60 * 60 * 10L;
     private final SecretKey secretKey;
 
     public JwtUtil(@Value("${spring.jwt.secret}") String secret) {
@@ -45,13 +46,13 @@ public class JwtUtil {
         }
     }
 
-    public String createJwt(String name, String loginId, String role, Long expiredMs) {
+    public String createJwt(String name, String loginId, String role) {
         return Jwts.builder()
                 .claim("name", name)
                 .claim("loginId", loginId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRED_MS))
                 .signWith(secretKey)
                 .compact();
     }
