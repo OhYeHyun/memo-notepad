@@ -17,18 +17,14 @@ public class MemoService {
 
     private final MemoRepository memoRepository;
 
-    public List<Memo> getAllMemos(Long loginMemberId, String guestId) {
-        String writerId = decideWriterId(loginMemberId, guestId);
-
+    public List<Memo> getAllMemos(String writerId) {
         return memoRepository.findAll(writerId)
                 .stream()
                 .sorted(Comparator.comparing(Memo::getCreatedDate))
                 .collect(Collectors.toList());
     }
 
-    public Memo saveMemo(String content, Long loginMemberId, String guestId) {
-        String writerId = decideWriterId(loginMemberId, guestId);
-
+    public Memo saveMemo(String content, String writerId) {
         Memo memo = new Memo(content, writerId);
         return memoRepository.save(memo);
     }
@@ -50,9 +46,5 @@ public class MemoService {
     public void updateMemo(Long id, String content) {
         Memo memo = memoRepository.findById(id).orElseThrow();
         memo.update(content);
-    }
-
-    private String decideWriterId(Long loginMemberId, String guestId) {
-        return (loginMemberId != null) ? String.valueOf(loginMemberId) : guestId;
     }
 }
