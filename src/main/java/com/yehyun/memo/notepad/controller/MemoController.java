@@ -27,8 +27,9 @@ public class MemoController {
 
         model.addAttribute("memoSaveForm", new MemoSaveForm());
         model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
+        model.addAttribute("principalMemberName", principalMember.getName());
 
-        log.info("memoSaveForm: {}", model.getAttribute("memoSaveForm"));  // null 아니어야 함
+        log.info("memoSaveForm: {}", model.getAttribute("memoSaveForm"));
 
         return "memo/memo";
     }
@@ -69,6 +70,8 @@ public class MemoController {
 
         model.addAttribute("memoUpdateForm", memoService.findById(id));
         model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
+        model.addAttribute("principalMemberName", principalMember.getName());
+
         return "memo/editMemo";
     }
 

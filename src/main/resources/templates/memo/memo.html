@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -19,7 +19,7 @@
 <body>
 <div class="outer">
     <section class="top">
-        <div class="memo">Memo</div>
+        <div class="memo" th:text="${principalMemberName} + '\'s MEMO 😊'">Memo</div>
     </section>
     <section class="middle">
         <div class="all-list">
@@ -53,6 +53,13 @@
         </div>
     </section>
     <section class="end">
+        <div th:if="${principalMemberName == 'guest'}" class="signup-button-wrapper">
+            <a th:href="@{/login/signup}">
+                <button type="submit" class="signup-btn">
+                    <i class="fa fa-user-plus"></i> 회원가입 하러 가기
+                </button>
+            </a>
+        </div>
         <form method="post" th:action class="write" th:object="${memoSaveForm}">
             <div class="form-group">
                 <input type="text"

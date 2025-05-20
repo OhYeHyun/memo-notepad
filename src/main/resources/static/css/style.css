@@ -20,7 +20,7 @@ body {
 
     background-color: rgb(255, 246, 234);
     min-width: 266px;
-    width: 30%;
+    width: 35%;
     min-height: 200px;
     height: 700px;
     border-radius: 60px;
@@ -31,10 +31,14 @@ body {
 }
 
 .memo {
+    display: flex;
     color: rgb(202, 127, 127);
-    font: 3rem "Fira Sans", serif;
+    font: 2rem "Fira Sans", serif;
     font-weight: 900;
-    height: 70px;
+    margin: 10px 0;
+    height: 55px;
+    line-height: 2rem;
+    justify-content: center;
     text-align: center;
     border-bottom: 6px dashed rgb(210, 214, 224);
 
@@ -293,7 +297,7 @@ body {
     justify-content: space-between;
     background-color: rgb(210, 214, 224);
     margin-top: 5px;
-    height: 5rem;
+    height: 6rem;
     align-items: center;
 
     padding: 0 1.5rem;
@@ -427,9 +431,7 @@ body {
 
 .signup-box {
     width: 100%;
-    padding: 1rem;
     text-align: center;
-    line-height: 1em;
     height: 100%;
 }
 
@@ -438,8 +440,16 @@ body {
     color: rgb(130, 60, 60);;
 }
 
+.signup-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
 .signup-btn {
     background-color: rgb(150, 97, 97);
+    border: none;
     color: white;
     padding: 10px 20px;
     border-radius: 20px;
