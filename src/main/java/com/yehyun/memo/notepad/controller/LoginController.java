@@ -2,7 +2,7 @@ package com.yehyun.memo.notepad.controller;
 
 import com.yehyun.memo.notepad.domain.login.form.LoginForm;
 import com.yehyun.memo.notepad.domain.member.Member;
-import com.yehyun.memo.notepad.domain.member.form.MemberSaveForm;
+import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.service.LoginService;
 import com.yehyun.memo.notepad.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,36 +23,13 @@ import java.util.UUID;
 @RequestMapping("/login")
 public class LoginController {
 
-    private final LoginService loginService;
     private final MemberService memberService;
 
     @GetMapping
-    public String loginForm(Model model) {
+    public String loginForm(@RequestParam(required = false) String error, Model model) {
         model.addAttribute("loginForm", new LoginForm());
+        model.addAttribute("error", error);
         return "login/login";
-    }
-
-    @PostMapping
-    public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult,
-                        @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
-
-        if (bindingResult.hasErrors()) {
-            log.info("오류 발생: {}", bindingResult);
-            return "login/login";
-        }
-
-        try {
-            Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
-            HttpSession session = request.getSession();
-            session.setAttribute("loginMemberId", loginMember.getId());
-
-            log.info("로그인 세션 생성: {}", loginMember.getId());
-            return "redirect:" + redirectURL;
-
-        } catch (IllegalArgumentException e) {
-            bindingResult.reject("login", e.getMessage());
-            return "login/login";
-        }
     }
 
     @GetMapping("/signup")
@@ -62,8 +39,7 @@ public class LoginController {
     }
 
     @PostMapping("/signup")
-    public String save(@Valid @ModelAttribute MemberSaveForm form, BindingResult bindingResult,
-                       @RequestParam(defaultValue = "/notepad/memos") String redirectURL, HttpServletRequest request) {
+    public String save(@Valid @ModelAttribute MemberSaveForm form, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             log.info("오류 발생: {}", bindingResult);
@@ -71,12 +47,8 @@ public class LoginController {
         }
 
         try {
-            Member member = memberService.joinMember(form.getName(), form.getLoginId(), form.getPassword());
-
-            HttpSession session = request.getSession();
-            session.setAttribute("loginMemberId", member.getId());
-            log.info("로그인 세션 생성: {}", member.getId());
-            return "redirect:" + redirectURL;
+            memberService.joinMember(form);
+            return "login/login";
 
         } catch (IllegalArgumentException e) {
             bindingResult.reject("login", e.getMessage());
