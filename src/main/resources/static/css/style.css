@@ -347,6 +347,14 @@ body {
     font-style: italic;
 }
 
+.login-error {
+    left: 10px;
+    color: red;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
 .login-text.error,
 .text.error,
 .edit-input.error {

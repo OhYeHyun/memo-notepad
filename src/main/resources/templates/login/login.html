@@ -14,26 +14,23 @@
     </section>
 
     <section class="middle">
+        <div th:if="${error == 'fail'}">
+            <p class="login-error">로그인 실패! 아이디 또는 비밀번호를 확인하세요.</p>
+        </div>
+        <div th:if="${error == 'expired'}">
+            <p class="login-error">토큰이 만료되었습니다. 다시 로그인해주세요.</p>
+        </div>
+
         <form th:action="@{/login}" method="post" th:object="${loginForm}" class="login-form">
-            <div class="field-error"
-                 th:if="${#fields.hasGlobalErrors()}"
-                 th:each="err : ${#fields.globalErrors()}"
-                 th:text="${err}">글로벌 오류</div>
 
             <div class="login-group">
                 <label for="loginId" class="font">아이디</label>
-                <input type="text" th:field="*{loginId}" class="login-text"
-                       th:classappend="${#fields.hasErrors('loginId')} ? ' error' : ''"
-                       placeholder="아이디를 입력해 주세요." autofocus />
-                <div class="field-error" th:errors="*{loginId}"></div>
+                <input type="text" name="loginId" id="loginId" class="login-text" placeholder="아이디" autofocus />
             </div>
 
             <div class="login-group">
                 <label for="password" class="font">비밀번호</label>
-                <input type="password" th:field="*{password}" class="login-text"
-                       th:classappend="${#fields.hasErrors('password')} ? ' error' : ''"
-                       placeholder="비밀번호를 입력해 주세요." />
-                <div class="field-error" th:errors="*{password}"></div>
+                <input type="password" name="password" id="password" class="login-text" placeholder="비밀번호" />
             </div>
 
             <button type="submit" class="login-btn">
