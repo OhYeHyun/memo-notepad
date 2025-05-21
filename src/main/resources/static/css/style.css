@@ -145,15 +145,11 @@ body {
 
 .item-add-button {
     position: absolute;
-    right: 2.5rem;
-
-    display: flex;
+    right: 0.6rem;
     border: none;
-
     font-size: 2.3rem;
     color: rgb(110, 140, 216);
     cursor: pointer;
-    margin-left: 11px;
     background-color: transparent;
 
     &:hover {
@@ -165,6 +161,12 @@ body {
         color: rgb(110, 140, 216);
         transform: scale(1);
     }
+}
+
+.item-add-button:disabled {
+    cursor: not-allowed;
+    transform: none;
+    pointer-events: none;
 }
 
 .edit {
