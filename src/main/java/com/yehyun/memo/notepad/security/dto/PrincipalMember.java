@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 public class PrincipalMember implements UserDetails, OAuth2User {
@@ -57,6 +58,18 @@ public class PrincipalMember implements UserDetails, OAuth2User {
     @Override
     public String getPassword() {
         return member.getPassword() != null ? member.getPassword() : "";
+    }
+
+    public String getRole() {
+        Collection<? extends GrantedAuthority> authorities = getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+
+        return auth.getAuthority();
+    }
+
+    public boolean isGuest() {
+        return "ROLE_GUEST".equals(member.getRole());
     }
 
     @Override

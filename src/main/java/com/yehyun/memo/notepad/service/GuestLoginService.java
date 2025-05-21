@@ -1,24 +1,22 @@
 package com.yehyun.memo.notepad.service;
 
-import com.yehyun.memo.notepad.security.jwt.JwtUtil;
+import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.service.PrincipalFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class GuestLoginService {
 
-    private final JwtUtil jwtUtil;
+    private final PrincipalFactory principalFactory;
 
-    public String createGuestToken() {
-        String guestName = "guest";
+    public PrincipalMember createGuestPrincipal() {
         String guestId = UUID.randomUUID().toString();
-        String guestRole = "ROLE_GUEST";
-
-        return jwtUtil.createJwt(guestName, guestId, guestRole);
+        Member guestMember = new Member("guest", guestId, "ROLE_GUEST");
+        return principalFactory.create(guestMember);
     }
 }

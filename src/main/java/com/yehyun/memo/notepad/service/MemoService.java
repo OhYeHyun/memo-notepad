@@ -47,4 +47,8 @@ public class MemoService {
         Memo memo = memoRepository.findById(id).orElseThrow();
         memo.update(content);
     }
+
+    public void updateWriterId(String guestId, String loginId) {
+        memoRepository.updateWriterId(guestId, loginId);
+    }
 }

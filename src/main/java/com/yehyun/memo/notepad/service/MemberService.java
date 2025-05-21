@@ -16,21 +16,34 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final MemoService memoService;
 
-    public Member joinMember(MemberSaveForm memberSaveForm) {
-        validateMemberSaveForm(memberSaveForm);
+    public Member joinMember(MemberSaveForm form) {
+        return joinMember(form, null);
+    }
 
-        Member member = new Member(
-                memberSaveForm.getName(),
-                memberSaveForm.getLoginId(),
-                bCryptPasswordEncoder.encode(memberSaveForm.getPassword())
-        );
+    public Member joinMember(MemberSaveForm form, Member existingMember) {
+        validateMemberSaveForm(form);
 
-        return memberRepository.save(member);
+        if (isGuest(existingMember)) {
+            memoService.updateWriterId(existingMember.getLoginId(), form.getLoginId());
+        }
+
+        return createAndSaveMember(form);
     }
 
     public Member findById(Long id) {
         return memberRepository.findById(id).orElseThrow();
+    }
+
+    private Member createAndSaveMember(MemberSaveForm form) {
+        Member member = new Member(form.getName(), form.getLoginId(), "ROLE_USER");
+        member.setPassword(bCryptPasswordEncoder.encode(form.getPassword()));
+        return memberRepository.save(member);
+    }
+
+    private boolean isGuest(Member member) {
+        return member != null && member.isGuest();
     }
 
     private void validateMemberSaveForm(MemberSaveForm form) {

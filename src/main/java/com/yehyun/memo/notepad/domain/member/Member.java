@@ -33,10 +33,13 @@ public class Member {
     public Member() {
     }
 
-    public Member(String name, String loginId, String password) {
+    public Member(String name, String loginId, String role) {
         this.name = name;
         this.loginId = loginId;
-        this.password = password;
-        this.role = "ROLE_USER";
+        this.role = role;
+    }
+
+    public boolean isGuest() {
+        return "ROLE_GUEST".equals(role);
     }
 }

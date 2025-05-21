@@ -34,4 +34,12 @@ public class MemoRepository {
                 .setParameter("writerId", writerId)
                 .getResultList();
     }
+
+    public void updateWriterId(String guestId, String loginId) {
+        String jpql = "update Memo m set m.writerId = :loginId where m.writerId = :guestId";
+        em.createQuery(jpql)
+                .setParameter("loginId", loginId)
+                .setParameter("guestId", guestId)
+                .executeUpdate();
+    }
 }
