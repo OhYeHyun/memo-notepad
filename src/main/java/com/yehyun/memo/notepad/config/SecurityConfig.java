@@ -4,13 +4,13 @@ import com.yehyun.memo.notepad.security.handler.CustomSuccessHandler;
 import com.yehyun.memo.notepad.security.jwt.JwtFilter;
 import com.yehyun.memo.notepad.security.jwt.JwtUtil;
 import com.yehyun.memo.notepad.security.service.CustomMemberDetailsService;
+import com.yehyun.memo.notepad.security.service.CustomOAuth2MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,6 +26,7 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomMemberDetailsService customMemberDetailsService;
+    private final CustomOAuth2MemberService customOAuth2MemberService;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -47,19 +48,31 @@ public class SecurityConfig {
                 .csrf((auth) -> auth.disable());
 
         http
+                .httpBasic((auth) -> auth.disable());
+
+        http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/css/**", "/login", "/login/signup", "/login/no").permitAll()
+                        .requestMatchers("/", "/oauth2/**", "/image/**", "/css/**", "/login", "/login/signup", "/login/no").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
 
         http
-                .formLogin((auth) -> auth.loginPage("/login")
+                .formLogin((auth) -> auth
+                        .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .usernameParameter("loginId")
                         .successHandler(customSuccessHandler)
                         .failureUrl("/login?error=fail")
                         .permitAll()
+                );
+
+        http
+                .oauth2Login((oauth2) -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint((userInfo ) -> userInfo.userService(customOAuth2MemberService))
+                        .successHandler(customSuccessHandler)
+                        .failureUrl("/login?error=fail")
                 );
 
         http

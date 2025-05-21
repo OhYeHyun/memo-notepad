@@ -24,7 +24,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         PrincipalMember principalMember = (PrincipalMember) authentication.getPrincipal();
-        String name = principalMember.getName();
+        String name = principalMember.getNickname();
         String loginId = principalMember.getUsername();
         String role = getRoleFromAuthentication(authentication);
 

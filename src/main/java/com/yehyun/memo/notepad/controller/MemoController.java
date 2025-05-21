@@ -27,7 +27,7 @@ public class MemoController {
 
         model.addAttribute("memoSaveForm", new MemoSaveForm());
         model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
-        model.addAttribute("principalMemberName", principalMember.getName());
+        model.addAttribute("principalMemberName", principalMember.getNickname());
 
         log.info("memoSaveForm: {}", model.getAttribute("memoSaveForm"));
 
@@ -41,6 +41,7 @@ public class MemoController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
+            model.addAttribute("principalMemberName", principalMember.getNickname());
             return "memo/memo";
         }
 
@@ -70,7 +71,7 @@ public class MemoController {
 
         model.addAttribute("memoUpdateForm", memoService.findById(id));
         model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
-        model.addAttribute("principalMemberName", principalMember.getName());
+        model.addAttribute("principalMemberName", principalMember.getNickname());
 
         return "memo/editMemo";
     }
@@ -82,6 +83,7 @@ public class MemoController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
+            model.addAttribute("principalMemberName", principalMember.getNickname());
             return "memo/editMemo";
         }
 

@@ -22,8 +22,13 @@ public class Member {
 
     @Column(unique = true)
     private String loginId;
+
+    @Column(nullable = true)
     private String password;
     private String role;
+
+    private String provider;
+    private String providerId;
 
     public Member() {
     }
@@ -33,9 +38,5 @@ public class Member {
         this.loginId = loginId;
         this.password = password;
         this.role = "ROLE_USER";
-    }
-
-    public boolean isPasswordMatch(String rawPassword) {
-        return password.equals(rawPassword);
     }
 }
