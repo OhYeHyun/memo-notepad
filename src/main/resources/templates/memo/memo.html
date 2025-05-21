@@ -59,6 +59,11 @@
                     <i class="fa fa-user-plus"></i> 회원가입 하러 가기
                 </button>
             </a>
+            <a th:href="@{/login}">
+                <button type="submit" class="signup-btn">
+                    <i class="fa fa-sign-in-alt"></i> 로그인 하러 가기
+                </button>
+            </a>
         </div>
         <form method="post" th:action class="write" th:object="${memoSaveForm}">
             <div class="form-group">

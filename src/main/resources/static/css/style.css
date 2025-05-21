@@ -453,6 +453,7 @@ body {
     background-color: rgb(150, 97, 97);
     border: none;
     color: white;
+    margin: 2px;
     padding: 10px 20px;
     border-radius: 20px;
     font-weight: bold;
