@@ -21,6 +21,7 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
