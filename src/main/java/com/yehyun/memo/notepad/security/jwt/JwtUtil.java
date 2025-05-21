@@ -34,15 +34,16 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
-    public Boolean isExpired(String token) {
+    public boolean isExpired(String token) {
         try {
-            return Jwts.parser()
+            Date expiration = Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
-                    .getExpiration()
-                    .before(new Date());
+                    .getExpiration();
+
+            return expiration.before(new Date());
         } catch (ExpiredJwtException e) {
             return true;
         }
