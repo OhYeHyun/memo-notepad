@@ -4,13 +4,10 @@ import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -20,6 +17,8 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final JwtRequestParser jwtRequestParser;
+    private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -29,7 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = extractTokenFromCookies(request.getCookies());
+        String token = jwtRequestParser.extractTokenFromCookies(request.getCookies());
         if (token == null) {
             log.info("token null");
             filterChain.doFilter(request, response);
@@ -42,31 +41,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        Member member = createMemberFromToken(token);
+        Member member = jwtRequestParser.createMemberFromToken(token);
         PrincipalMember principalMember = new PrincipalMember(member);
-
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(principalMember, null, principalMember.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        jwtLoginSuccessProcessor.addToSecurityContextHolder(principalMember);
 
         filterChain.doFilter(request, response);
-    }
-
-    private String extractTokenFromCookies(Cookie[] cookies) {
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("Authorization")) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
-    private Member createMemberFromToken(String token) {
-        return new Member(
-                jwtUtil.getName(token),
-                jwtUtil.getLoginId(token),
-                jwtUtil.getRole(token)
-        );
     }
 }
