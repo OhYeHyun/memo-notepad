@@ -67,28 +67,4 @@ public class PrincipalMember implements UserDetails, OAuth2User {
 
         return auth.getAuthority();
     }
-
-    public boolean isGuest() {
-        return "ROLE_GUEST".equals(member.getRole());
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

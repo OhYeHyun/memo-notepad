@@ -1,9 +1,7 @@
 package com.yehyun.memo.notepad.security.jwt;
 
-import com.yehyun.memo.notepad.domain.member.Member;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
