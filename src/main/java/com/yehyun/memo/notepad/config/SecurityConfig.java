@@ -7,6 +7,7 @@ import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
 import com.yehyun.memo.notepad.security.jwt.JwtUtil;
 import com.yehyun.memo.notepad.security.service.CustomMemberDetailsService;
 import com.yehyun.memo.notepad.security.service.CustomOAuth2MemberService;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -79,6 +80,19 @@ public class SecurityConfig {
                         .userInfoEndpoint((userInfo ) -> userInfo.userService(customOAuth2MemberService))
                         .successHandler(customSuccessHandler)
                         .failureUrl("/login?error=fail")
+                );
+
+        http
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            Cookie cookie = new Cookie("Authorization", null);
+                            cookie.setMaxAge(0);
+                            cookie.setPath("/");
+                            response.addCookie(cookie);
+
+                            response.sendRedirect("/");
+                        })
                 );
 
         http

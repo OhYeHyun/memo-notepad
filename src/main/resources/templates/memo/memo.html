@@ -65,6 +65,11 @@
                 </button>
             </a>
         </div>
+        <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+            <button type="submit" class="signup-btn">
+                <i class="fa fa-sign-in-alt"></i> 로그아웃 하기
+            </button>
+        </form>
         <form method="post" th:action class="write" th:object="${memoSaveForm}">
             <div class="form-group">
                 <input type="text"
