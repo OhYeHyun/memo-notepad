@@ -3,7 +3,6 @@ package com.yehyun.memo.notepad.security.service;
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
-import com.yehyun.memo.notepad.security.oauth.GoogleResponse;
 import com.yehyun.memo.notepad.security.oauth.KakaoResponse;
 import com.yehyun.memo.notepad.security.oauth.OAuth2Response;
 import jakarta.transaction.Transactional;
