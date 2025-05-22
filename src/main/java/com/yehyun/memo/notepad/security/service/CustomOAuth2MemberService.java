@@ -2,9 +2,10 @@ package com.yehyun.memo.notepad.security.service;
 
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.repository.MemberRepository;
-import com.yehyun.memo.notepad.security.dto.KakaoResponse;
-import com.yehyun.memo.notepad.security.dto.OAuth2Response;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.oauth.GoogleResponse;
+import com.yehyun.memo.notepad.security.oauth.KakaoResponse;
+import com.yehyun.memo.notepad.security.oauth.OAuth2Response;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -13,6 +14,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -51,13 +53,14 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
     }
 
     private Member createMemberFromOAuth2Response(OAuth2Response oAuth2Response) {
-        Member member = new Member(
+        Member member = Member.ofOAuth(
                 oAuth2Response.getName(),
                 buildLoginId(oAuth2Response),
-                "ROLE_USER"
+                UUID.randomUUID().toString(),
+                "ROLE_USER",
+                oAuth2Response.getProvider(),
+                oAuth2Response.getProviderId()
         );
-        member.setProvider(oAuth2Response.getProvider());
-        member.setProviderId(oAuth2Response.getProviderId());
 
         return memberRepository.save(member);
     }

@@ -1,6 +1,9 @@
 package com.yehyun.memo.notepad.service;
 
 import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.dto.MemberDto;
+import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.validator.ValidationException;
@@ -16,34 +19,38 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final MemoService memoService;
+    private final GuestService guestService;
+    private final JwtRequestParser jwtRequestParser;
 
-    public Member joinMember(MemberSaveForm form) {
-        return joinMember(form, null);
-    }
-
-    public Member joinMember(MemberSaveForm form, Member existingMember) {
+    public JwtPrincipal signupWithPossibleGuest(MemberSaveForm form, String existingToken) {
         validateMemberSaveForm(form);
 
-        if (isGuest(existingMember)) {
-            memoService.updateWriterId(existingMember.getLoginId(), form.getLoginId());
+        if (existingToken != null) {
+            MemberDto existingMember = jwtRequestParser.createMemberFromToken(existingToken);
+            guestService.transferGuestMemos(existingMember, form.getLoginId());
         }
 
-        return createAndSaveMember(form);
+        return createGuestMember(form);
+    }
+
+    private JwtPrincipal createGuestMember(MemberSaveForm form) {
+        Member member = Member.ofLocal(
+                form.getName(),
+                form.getLoginId(),
+                bCryptPasswordEncoder.encode(form.getPassword()),
+                "ROLE_USER"
+        );
+        memberRepository.save(member);
+
+        return createMemberPrinciple(member);
+    }
+
+    private JwtPrincipal createMemberPrinciple(Member member) {
+        return new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
     }
 
     public Member findById(Long id) {
         return memberRepository.findById(id).orElseThrow();
-    }
-
-    private Member createAndSaveMember(MemberSaveForm form) {
-        Member member = new Member(form.getName(), form.getLoginId(), "ROLE_USER");
-        member.setPassword(bCryptPasswordEncoder.encode(form.getPassword()));
-        return memberRepository.save(member);
-    }
-
-    private boolean isGuest(Member member) {
-        return member != null && member.isGuest();
     }
 
     private void validateMemberSaveForm(MemberSaveForm form) {

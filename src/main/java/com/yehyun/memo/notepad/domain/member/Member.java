@@ -23,7 +23,6 @@ public class Member {
     @Column(unique = true)
     private String loginId;
 
-    @Column(nullable = true)
     private String password;
     private String role;
 
@@ -33,13 +32,27 @@ public class Member {
     public Member() {
     }
 
-    public Member(String name, String loginId, String role) {
+    private Member(String name, String loginId, String password, String role) {
         this.name = name;
         this.loginId = loginId;
+        this.password = password;
         this.role = role;
     }
 
-    public boolean isGuest() {
-        return "ROLE_GUEST".equals(role);
+    private Member(String name, String loginId, String password, String role, String provider, String providerId) {
+        this.name = name;
+        this.loginId = loginId;
+        this.password = password;
+        this.role = role;
+        this.provider = provider;
+        this.providerId = providerId;
+    }
+
+    public static Member ofLocal(String name, String loginId, String password, String role) {
+        return new Member(name, loginId, password, role);
+    }
+
+    public static Member ofOAuth(String name, String loginId, String password, String role, String provider, String providerId) {
+        return new Member(name, loginId, password, role, provider, providerId);
     }
 }
