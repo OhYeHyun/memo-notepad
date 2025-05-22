@@ -28,6 +28,7 @@ public class MemoController {
         model.addAttribute("memoSaveForm", new MemoSaveForm());
         model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
         model.addAttribute("principalMemberName", jwtPrincipal.getName());
+        model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
 
         log.info("memoSaveForm: {}", model.getAttribute("memoSaveForm"));
 
@@ -42,6 +43,7 @@ public class MemoController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
             model.addAttribute("principalMemberName", jwtPrincipal.getName());
+            model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
             return "memo/memo";
         }
 

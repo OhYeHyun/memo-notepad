@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="">
+<html xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -65,7 +65,8 @@
                 </button>
             </a>
         </div>
-        <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+        <form th:action="@{/logout}" method="post"
+              th:if="${principalMemberRole != 'ROLE_GUEST'}">
             <button type="submit" class="signup-btn">
                 <i class="fa fa-sign-in-alt"></i> 로그아웃 하기
             </button>
