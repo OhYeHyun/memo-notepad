@@ -1,4 +1,4 @@
-package com.yehyun.memo.notepad.security.dto;
+package com.yehyun.memo.notepad.security.oauth;
 
 public interface OAuth2Response {
 
