@@ -37,12 +37,19 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (jwtUtil.isExpired(token)) {
             log.info("token expired");
-            response.sendRedirect("/login?error=expired");
+            if (!response.isCommitted()) {
+                response.sendRedirect("/login?error=expired");
+            }
             return;
         }
 
         MemberDto member = jwtRequestParser.createMemberFromToken(token);
-
+        if (member == null) {
+            if (!response.isCommitted()) {
+                response.sendRedirect("/login?error=expired");
+            }
+            return;
+        }
         JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
         jwtLoginSuccessProcessor.addToSecurityContextHolder(jwtPrincipal);
 

@@ -1,6 +1,7 @@
 package com.yehyun.memo.notepad.security.jwt;
 
-import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.security.dto.MemberDto;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,11 +38,15 @@ public class JwtRequestParser {
         return null;
     }
 
-    public Member createMemberFromToken(String token) {
-        return new Member(
-                jwtUtil.getName(token),
-                jwtUtil.getLoginId(token),
-                jwtUtil.getRole(token)
-        );
+    public MemberDto createMemberFromToken(String token) {
+        try {
+            String name = jwtUtil.getName(token);
+            String loginId = jwtUtil.getLoginId(token);
+            String role = jwtUtil.getRole(token);
+
+            return new MemberDto(name, loginId, role);
+        } catch (ExpiredJwtException e) {
+            return null;
+        }
     }
 }
