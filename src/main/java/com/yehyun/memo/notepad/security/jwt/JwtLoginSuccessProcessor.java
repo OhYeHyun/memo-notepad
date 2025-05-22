@@ -1,6 +1,6 @@
 package com.yehyun.memo.notepad.security.jwt;
 
-import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,20 +13,20 @@ public class JwtLoginSuccessProcessor {
 
     private final JwtRequestParser jwtRequestParser;
 
-    public void processSuccess(HttpServletResponse response, PrincipalMember principalMember) {
-        addToSecurityContextHolder(principalMember);
+    public void processSuccess(HttpServletResponse response, JwtPrincipal jwtPrincipal) {
+        addToSecurityContextHolder(jwtPrincipal);
 
         String token = jwtRequestParser.createToken(
-                principalMember.getNickname(),
-                principalMember.getUsername(),
-                principalMember.getRole()
+                jwtPrincipal.getName(),
+                jwtPrincipal.getUsername(),
+                jwtPrincipal.getRole()
         );
 
         response.addCookie(jwtRequestParser.createCookie(token));
     }
 
-    public void addToSecurityContextHolder(PrincipalMember principalMember) {
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(principalMember, null, principalMember.getAuthorities());
+    public void addToSecurityContextHolder(JwtPrincipal jwtPrincipal) {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(jwtPrincipal, null, jwtPrincipal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }

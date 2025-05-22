@@ -1,10 +1,11 @@
 package com.yehyun.memo.notepad.security.handler;
 
-import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.dto.MemberDto;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
-import com.yehyun.memo.notepad.service.MemoService;
+import com.yehyun.memo.notepad.service.GuestService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,20 +21,24 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
     private final JwtRequestParser jwtRequestParser;
-    private final MemoService memoService;
+    private final GuestService guestService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         PrincipalMember principalMember = (PrincipalMember) authentication.getPrincipal();
+        JwtPrincipal jwtPrincipal = new JwtPrincipal(
+                principalMember.getNickname(),
+                principalMember.getUsername(),
+                principalMember.getRole()
+        );
 
         String guestToken = jwtRequestParser.extractTokenFromCookies(request.getCookies());
-
         if (guestToken != null) {
-            Member guest = jwtRequestParser.createMemberFromToken(guestToken);
-            memoService.updateWriterId(guest.getLoginId(), principalMember.getName());
+            MemberDto guest = jwtRequestParser.createMemberFromToken(guestToken);
+            guestService.transferGuestMemos(guest, principalMember.getName());
         }
 
-        jwtLoginSuccessProcessor.processSuccess(response, principalMember);
+        jwtLoginSuccessProcessor.processSuccess(response, jwtPrincipal);
         getRedirectStrategy().sendRedirect(request, response, "/");
     }
 }

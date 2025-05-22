@@ -1,11 +1,9 @@
 package com.yehyun.memo.notepad.controller;
 
-import com.yehyun.memo.notepad.domain.member.Member;
-import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
-import com.yehyun.memo.notepad.security.service.PrincipalFactory;
-import com.yehyun.memo.notepad.service.GuestLoginService;
+import com.yehyun.memo.notepad.service.GuestService;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.service.MemberService;
 import com.yehyun.memo.notepad.validator.ValidationException;
@@ -24,10 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final MemberService memberService;
-    private final GuestLoginService guestLoginService;
+    private final GuestService guestLoginService;
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
     private final JwtRequestParser jwtRequestParser;
-    private final PrincipalFactory principalFactory;
 
     @GetMapping
     public String loginForm(@RequestParam(required = false) String error, Model model) {
@@ -44,9 +41,9 @@ public class LoginController {
     @PostMapping("/signup")
     public String save(@Valid @ModelAttribute MemberSaveForm form,
                        BindingResult bindingResult,
+                       @RequestParam(defaultValue = "/notepad/memos") String redirectURL,
                        HttpServletRequest request,
-                       HttpServletResponse response,
-                       @RequestParam(defaultValue = "/notepad/memos") String redirectURL) {
+                       HttpServletResponse response) {
 
         if (bindingResult.hasErrors()) {
             return "login/signup";
@@ -54,16 +51,10 @@ public class LoginController {
 
         try {
             String guestToken = jwtRequestParser.extractTokenFromCookies(request.getCookies());
-            if (guestToken != null) {
-                Member guest = jwtRequestParser.createMemberFromToken(guestToken);
-                Member member = memberService.joinMember(form, guest);
-                jwtLoginSuccessProcessor.processSuccess(response, principalFactory.create(member));
-            } else {
-                Member member = memberService.joinMember(form);
-                jwtLoginSuccessProcessor.processSuccess(response, principalFactory.create(member));
-            }
-            return "redirect:" + redirectURL;
+            JwtPrincipal jwtPrincipal = memberService.signupWithPossibleGuest(form, guestToken);
+            jwtLoginSuccessProcessor.processSuccess(response, jwtPrincipal);
 
+            return "redirect:" + redirectURL;
         } catch (ValidationException e) {
             bindingResult.rejectValue(e.getField(), e.getErrorCode());
 
@@ -73,8 +64,8 @@ public class LoginController {
 
     @GetMapping("/no")
     public String noLogin(HttpServletResponse response) {
-        PrincipalMember guestMember = guestLoginService.createGuestPrincipal();
-        jwtLoginSuccessProcessor.processSuccess(response, guestMember);
+        JwtPrincipal jwtPrincipal = guestLoginService.createGuestMember();
+        jwtLoginSuccessProcessor.processSuccess(response, jwtPrincipal);
 
         return "redirect:/notepad/memos";
     }

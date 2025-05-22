@@ -3,7 +3,7 @@ package com.yehyun.memo.notepad.controller;
 import com.yehyun.memo.notepad.domain.memo.Memo;
 import com.yehyun.memo.notepad.domain.memo.form.MemoSaveForm;
 import com.yehyun.memo.notepad.domain.memo.form.MemoUpdateForm;
-import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.service.MemoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,11 @@ public class MemoController {
     private final MemoService memoService;
 
     @GetMapping
-    public String listMemos(Model model, @AuthenticationPrincipal PrincipalMember principalMember) {
+    public String listMemos(Model model, @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
 
         model.addAttribute("memoSaveForm", new MemoSaveForm());
-        model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
-        model.addAttribute("principalMemberName", principalMember.getNickname());
+        model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+        model.addAttribute("principalMemberName", jwtPrincipal.getName());
 
         log.info("memoSaveForm: {}", model.getAttribute("memoSaveForm"));
 
@@ -36,16 +36,16 @@ public class MemoController {
 
     @PostMapping
     public String createMemo(@Valid @ModelAttribute MemoSaveForm form, BindingResult bindingResult,
-                             @AuthenticationPrincipal PrincipalMember principalMember,
+                             @AuthenticationPrincipal JwtPrincipal jwtPrincipal,
                              Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
-            model.addAttribute("principalMemberName", principalMember.getNickname());
+            model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+            model.addAttribute("principalMemberName", jwtPrincipal.getName());
             return "memo/memo";
         }
 
-        Memo memo = memoService.saveMemo(form.getContent(), principalMember.getName());
+        Memo memo = memoService.saveMemo(form.getContent(), jwtPrincipal.getUsername());
         log.info("저장됨 {}", memo.getContent());
 
         return "redirect:/notepad/memos";
@@ -65,13 +65,13 @@ public class MemoController {
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model,
-                           @AuthenticationPrincipal PrincipalMember principalMember) {
+                           @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
 
         log.info("수정 {}", id);
 
         model.addAttribute("memoUpdateForm", memoService.findById(id));
-        model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
-        model.addAttribute("principalMemberName", principalMember.getNickname());
+        model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+        model.addAttribute("principalMemberName", jwtPrincipal.getName());
 
         return "memo/editMemo";
     }
@@ -79,11 +79,11 @@ public class MemoController {
     @PostMapping("/{id}/edit")
     public String edit(@Valid @ModelAttribute MemoUpdateForm form,
                        BindingResult bindingResult, Model model,
-                       @AuthenticationPrincipal PrincipalMember principalMember) {
+                       @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoService.getAllMemos(principalMember.getName()));
-            model.addAttribute("principalMemberName", principalMember.getNickname());
+            model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+            model.addAttribute("principalMemberName", jwtPrincipal.getName());
             return "memo/editMemo";
         }
 

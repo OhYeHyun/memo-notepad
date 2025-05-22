@@ -1,7 +1,7 @@
 package com.yehyun.memo.notepad.security.jwt;
 
-import com.yehyun.memo.notepad.domain.member.Member;
-import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.dto.MemberDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,9 +41,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        Member member = jwtRequestParser.createMemberFromToken(token);
-        PrincipalMember principalMember = new PrincipalMember(member);
-        jwtLoginSuccessProcessor.addToSecurityContextHolder(principalMember);
+        MemberDto member = jwtRequestParser.createMemberFromToken(token);
+
+        JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
+        jwtLoginSuccessProcessor.addToSecurityContextHolder(jwtPrincipal);
 
         filterChain.doFilter(request, response);
     }
