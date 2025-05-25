@@ -52,7 +52,7 @@ public class LoginController {
         try {
             String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies());
             JwtPrincipal jwtPrincipal = memberService.signupWithPossibleGuest(form, guestToken);
-            jwtLoginSuccessProcessor.processSuccess(response, jwtPrincipal);
+            jwtLoginSuccessProcessor.processSuccess(request, response, jwtPrincipal);
 
             return "redirect:" + redirectURL;
         } catch (ValidationException e) {
@@ -63,9 +63,9 @@ public class LoginController {
     }
 
     @GetMapping("/no")
-    public String noLogin(HttpServletResponse response) {
+    public String noLogin(HttpServletRequest request, HttpServletResponse response) {
         JwtPrincipal jwtPrincipal = guestLoginService.createGuestMember();
-        jwtLoginSuccessProcessor.processSuccess(response, jwtPrincipal);
+        jwtLoginSuccessProcessor.processSuccess(request, response, jwtPrincipal);
 
         return "redirect:/notepad/memos";
     }

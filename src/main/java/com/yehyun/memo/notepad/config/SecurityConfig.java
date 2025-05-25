@@ -1,13 +1,14 @@
 package com.yehyun.memo.notepad.config;
 
-import com.yehyun.memo.notepad.security.handler.CustomSuccessHandler;
+import com.yehyun.memo.notepad.security.handler.CustomAuthenticationFailureHandler;
+import com.yehyun.memo.notepad.security.handler.CustomAuthenticationSuccessHandler;
+import com.yehyun.memo.notepad.security.handler.CustomLogoutSuccessHandler;
 import com.yehyun.memo.notepad.security.jwt.JwtFilter;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.security.jwt.JwtUtil;
 import com.yehyun.memo.notepad.security.service.CustomMemberDetailsService;
 import com.yehyun.memo.notepad.security.service.CustomOAuth2MemberService;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +31,9 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
 
-    private final CustomSuccessHandler customSuccessHandler;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     private final CustomMemberDetailsService customMemberDetailsService;
     private final CustomOAuth2MemberService customOAuth2MemberService;
@@ -69,8 +72,8 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .usernameParameter("loginId")
-                        .successHandler(customSuccessHandler)
-                        .failureUrl("/login?error=fail")
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureHandler(customAuthenticationFailureHandler)
                         .permitAll()
                 );
 
@@ -78,21 +81,14 @@ public class SecurityConfig {
                 .oauth2Login((oauth2) -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint((userInfo ) -> userInfo.userService(customOAuth2MemberService))
-                        .successHandler(customSuccessHandler)
-                        .failureUrl("/login?error=fail")
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureHandler(customAuthenticationFailureHandler)
                 );
 
         http
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            Cookie cookie = new Cookie("Authorization", null);
-                            cookie.setMaxAge(0);
-                            cookie.setPath("/");
-                            response.addCookie(cookie);
-
-                            response.sendRedirect("/");
-                        })
+                        .logoutSuccessHandler(customLogoutSuccessHandler)
                 );
 
         http

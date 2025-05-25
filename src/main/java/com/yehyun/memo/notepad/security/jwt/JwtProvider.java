@@ -17,15 +17,6 @@ public class JwtProvider {
         return jwtUtil.createJwt(name, loginId, role);
     }
 
-    public Cookie createCookie(String token) {
-        Cookie cookie = new Cookie("Authorization", token);
-        cookie.setMaxAge(216);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
-    }
-
     public JwtPrincipal createMemberFromToken(String token) {
         if (jwtUtil.isExpired(token)) return null;
 
@@ -34,6 +25,26 @@ public class JwtProvider {
         String role = jwtUtil.getRole(token);
 
         return new JwtPrincipal(name, loginId, role);
+    }
+
+    public Cookie createCookie(String token) {
+        Cookie cookie = new Cookie("Authorization", token);
+        cookie.setMaxAge(216);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+
+        return cookie;
+    }
+
+    public Cookie expireCookie() {
+        Cookie cookie = new Cookie("Authorization", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+
+        return cookie;
     }
 
     public String extractTokenFromCookies(Cookie[] cookies) {
