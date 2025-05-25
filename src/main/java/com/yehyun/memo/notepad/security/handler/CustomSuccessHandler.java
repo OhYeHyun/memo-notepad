@@ -1,7 +1,6 @@
 package com.yehyun.memo.notepad.security.handler;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
-import com.yehyun.memo.notepad.security.dto.MemberDto;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.security.jwt.JwtProvider;
@@ -34,7 +33,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies());
         if (guestToken != null) {
-            MemberDto guest = jwtProvider.createMemberFromToken(guestToken);
+            JwtPrincipal guest = jwtProvider.createMemberFromToken(guestToken);
             guestService.transferGuestMemos(guest, principalMember.getName());
         }
 

@@ -2,7 +2,6 @@ package com.yehyun.memo.notepad.service;
 
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
-import com.yehyun.memo.notepad.security.dto.MemberDto;
 import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.repository.MemberRepository;
@@ -26,7 +25,7 @@ public class MemberService {
         validateMemberSaveForm(form);
 
         if (existingToken != null) {
-            MemberDto existingMember = jwtProvider.createMemberFromToken(existingToken);
+            JwtPrincipal existingMember = jwtProvider.createMemberFromToken(existingToken);
             guestService.transferGuestMemos(existingMember, form.getLoginId());
         }
 
