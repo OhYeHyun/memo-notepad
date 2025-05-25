@@ -1,6 +1,8 @@
 package com.yehyun.memo.notepad.security.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,33 +22,6 @@ public class JwtUtil {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String getName(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("name", String.class);
-    }
-
-    public String getLoginId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("loginId", String.class);
-    }
-
-    public String getRole(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
-    }
-
-    public boolean isExpired(String token) {
-        try {
-            Date expiration = Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .getExpiration();
-
-            return expiration.before(new Date());
-        } catch (ExpiredJwtException e) {
-            return true;
-        }
-    }
-
     public String createJwt(String name, String loginId, String role) {
         return Jwts.builder()
                 .claim("name", name)
@@ -56,5 +31,39 @@ public class JwtUtil {
                 .expiration(new Date(System.currentTimeMillis() + EXPIRED_MS))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public Claims parseClaims(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        } catch (JwtException e) {
+            return null;
+        }
+    }
+
+    public boolean isExpired(String token) {
+        Claims claims = parseClaims(token);
+        return claims == null || claims.getExpiration().before(new Date());
+    }
+
+    public String getName(String token) {
+        Claims claims = parseClaims(token);
+        return claims != null ? claims.get("name", String.class) : null;
+    }
+
+    public String getLoginId(String token) {
+        Claims claims = parseClaims(token);
+        return claims != null ? claims.get("loginId", String.class) : null;
+    }
+
+    public String getRole(String token) {
+        Claims claims = parseClaims(token);
+        return claims != null ? claims.get("role", String.class) : null;
     }
 }

@@ -2,7 +2,7 @@ package com.yehyun.memo.notepad.controller;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
-import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
+import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.service.GuestService;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.service.MemberService;
@@ -24,7 +24,7 @@ public class LoginController {
     private final MemberService memberService;
     private final GuestService guestLoginService;
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
-    private final JwtRequestParser jwtRequestParser;
+    private final JwtProvider jwtProvider;
 
     @GetMapping
     public String loginForm(@RequestParam(required = false) String error, Model model) {
@@ -50,7 +50,7 @@ public class LoginController {
         }
 
         try {
-            String guestToken = jwtRequestParser.extractTokenFromCookies(request.getCookies());
+            String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies());
             JwtPrincipal jwtPrincipal = memberService.signupWithPossibleGuest(form, guestToken);
             jwtLoginSuccessProcessor.processSuccess(response, jwtPrincipal);
 

@@ -3,7 +3,7 @@ package com.yehyun.memo.notepad.service;
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.dto.MemberDto;
-import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
+import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.validator.ValidationException;
@@ -20,13 +20,13 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final GuestService guestService;
-    private final JwtRequestParser jwtRequestParser;
+    private final JwtProvider jwtProvider;
 
     public JwtPrincipal signupWithPossibleGuest(MemberSaveForm form, String existingToken) {
         validateMemberSaveForm(form);
 
         if (existingToken != null) {
-            MemberDto existingMember = jwtRequestParser.createMemberFromToken(existingToken);
+            MemberDto existingMember = jwtProvider.createMemberFromToken(existingToken);
             guestService.transferGuestMemos(existingMember, form.getLoginId());
         }
 

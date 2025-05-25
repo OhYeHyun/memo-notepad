@@ -4,7 +4,7 @@ import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.dto.MemberDto;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
-import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
+import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.service.GuestService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +20,7 @@ import java.io.IOException;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
-    private final JwtRequestParser jwtRequestParser;
+    private final JwtProvider jwtProvider;
     private final GuestService guestService;
 
     @Override
@@ -32,9 +32,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 principalMember.getRole()
         );
 
-        String guestToken = jwtRequestParser.extractTokenFromCookies(request.getCookies());
+        String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies());
         if (guestToken != null) {
-            MemberDto guest = jwtRequestParser.createMemberFromToken(guestToken);
+            MemberDto guest = jwtProvider.createMemberFromToken(guestToken);
             guestService.transferGuestMemos(guest, principalMember.getName());
         }
 

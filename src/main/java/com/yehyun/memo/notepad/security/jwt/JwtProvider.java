@@ -1,7 +1,6 @@
 package com.yehyun.memo.notepad.security.jwt;
 
-import com.yehyun.memo.notepad.security.dto.MemberDto;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class JwtRequestParser {
+public class JwtProvider {
 
     private final JwtUtil jwtUtil;
 
@@ -27,6 +26,16 @@ public class JwtRequestParser {
         return cookie;
     }
 
+    public JwtPrincipal createMemberFromToken(String token) {
+        if (jwtUtil.isExpired(token)) return null;
+
+        String name = jwtUtil.getName(token);
+        String loginId = jwtUtil.getLoginId(token);
+        String role = jwtUtil.getRole(token);
+
+        return new JwtPrincipal(name, loginId, role);
+    }
+
     public String extractTokenFromCookies(Cookie[] cookies) {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -36,17 +45,5 @@ public class JwtRequestParser {
             }
         }
         return null;
-    }
-
-    public MemberDto createMemberFromToken(String token) {
-        try {
-            String name = jwtUtil.getName(token);
-            String loginId = jwtUtil.getLoginId(token);
-            String role = jwtUtil.getRole(token);
-
-            return new MemberDto(name, loginId, role);
-        } catch (ExpiredJwtException e) {
-            return null;
-        }
     }
 }

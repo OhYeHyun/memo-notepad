@@ -1,7 +1,6 @@
 package com.yehyun.memo.notepad.security.jwt;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
-import com.yehyun.memo.notepad.security.dto.MemberDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +16,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final JwtRequestParser jwtRequestParser;
+    private final JwtProvider jwtProvider;
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
 
     @Override
@@ -28,7 +27,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = jwtRequestParser.extractTokenFromCookies(request.getCookies());
+        String token = jwtProvider.extractTokenFromCookies(request.getCookies());
         if (token == null) {
             log.info("token null");
             filterChain.doFilter(request, response);
@@ -37,20 +36,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (jwtUtil.isExpired(token)) {
             log.info("token expired");
-            if (!response.isCommitted()) {
-                response.sendRedirect("/login?error=expired");
-            }
+            response.sendRedirect("/login?error=expired");
             return;
         }
 
-        MemberDto member = jwtRequestParser.createMemberFromToken(token);
+        JwtPrincipal member = jwtProvider.createMemberFromToken(token);
         if (member == null) {
-            if (!response.isCommitted()) {
-                response.sendRedirect("/login?error=expired");
-            }
+            response.sendRedirect("/login?error=expired");
             return;
         }
-        JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
+        JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getName(), member.getUsername(), member.getRole());
         jwtLoginSuccessProcessor.addToSecurityContextHolder(jwtPrincipal);
 
         filterChain.doFilter(request, response);

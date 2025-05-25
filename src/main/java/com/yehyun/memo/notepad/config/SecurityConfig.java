@@ -3,7 +3,7 @@ package com.yehyun.memo.notepad.config;
 import com.yehyun.memo.notepad.security.handler.CustomSuccessHandler;
 import com.yehyun.memo.notepad.security.jwt.JwtFilter;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
-import com.yehyun.memo.notepad.security.jwt.JwtRequestParser;
+import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.security.jwt.JwtUtil;
 import com.yehyun.memo.notepad.security.service.CustomMemberDetailsService;
 import com.yehyun.memo.notepad.security.service.CustomOAuth2MemberService;
@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final JwtRequestParser jwtRequestParser;
+    private final JwtProvider jwtProvider;
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
 
     private final CustomSuccessHandler customSuccessHandler;
@@ -100,7 +100,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
-                .addFilterBefore(new JwtFilter(jwtUtil, jwtRequestParser, jwtLoginSuccessProcessor), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtUtil, jwtProvider, jwtLoginSuccessProcessor), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

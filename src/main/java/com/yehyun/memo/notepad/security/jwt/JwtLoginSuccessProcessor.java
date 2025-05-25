@@ -11,18 +11,18 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtLoginSuccessProcessor {
 
-    private final JwtRequestParser jwtRequestParser;
+    private final JwtProvider jwtProvider;
 
     public void processSuccess(HttpServletResponse response, JwtPrincipal jwtPrincipal) {
         addToSecurityContextHolder(jwtPrincipal);
 
-        String token = jwtRequestParser.createToken(
+        String token = jwtProvider.createToken(
                 jwtPrincipal.getName(),
                 jwtPrincipal.getUsername(),
                 jwtPrincipal.getRole()
         );
 
-        response.addCookie(jwtRequestParser.createCookie(token));
+        response.addCookie(jwtProvider.createCookie(token));
     }
 
     public void addToSecurityContextHolder(JwtPrincipal jwtPrincipal) {
