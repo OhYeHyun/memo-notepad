@@ -17,7 +17,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final Long ACCESS_TOKEN_EXPIRED_MS = Duration.ofMinutes(1).toMillis();
-    private static final Long REFRESH_TOKEN_EXPIRED_MS = Duration.ofDays(1).toMillis();
+    private static final Long REFRESH_TOKEN_EXPIRED_MS = Duration.ofMinutes(3).toMillis();
 
     private final SecretKey secretKey;
 

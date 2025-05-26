@@ -57,7 +57,7 @@ public class JwtAuthenticationService {
 
         if (loginId.startsWith("guest_")) {
             JwtPrincipal jwtPrincipal = new JwtPrincipal("guest", loginId, "ROLE_GUEST");
-            jwtLoginSuccessProcessor.reissueTokensAndAuthenticate(request, response, jwtPrincipal);
+            jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
             return true;
         }
 
@@ -65,7 +65,7 @@ public class JwtAuthenticationService {
         if (member == null) return false;
 
         JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
-        jwtLoginSuccessProcessor.reissueTokensAndAuthenticate(request, response, jwtPrincipal);
+        jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
         return true;
     }
 }

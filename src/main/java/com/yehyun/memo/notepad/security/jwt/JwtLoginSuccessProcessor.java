@@ -29,8 +29,21 @@ public class JwtLoginSuccessProcessor {
         );
         String refreshToken = jwtProvider.createRefreshToken(jwtPrincipal.getUsername());
 
-        addTokensToResponse(response, accessToken, refreshToken);
+        addTokenToResponse(response, "access_token", accessToken);
+        addTokenToResponse(response, "refresh_token", refreshToken);
         redisService.saveRefreshToken(jwtPrincipal.getUsername(), refreshToken, jwtProvider.getRefreshTokenExpiry());
+
+        applyAuthentication(jwtPrincipal);
+    }
+
+    public void reissueAccessTokenAndAuthenticate(HttpServletResponse response, JwtPrincipal jwtPrincipal) {
+        String accessToken = jwtProvider.createAccessToken(
+                jwtPrincipal.getName(),
+                jwtPrincipal.getUsername(),
+                jwtPrincipal.getRole()
+        );
+
+        addTokenToResponse(response, "access_token", accessToken);
 
         applyAuthentication(jwtPrincipal);
     }
@@ -45,9 +58,8 @@ public class JwtLoginSuccessProcessor {
         }
     }
 
-    private void addTokensToResponse(HttpServletResponse response, String accessToken, String refreshToken) {
-        response.addCookie(jwtProvider.createCookie("access_token", accessToken));
-        response.addCookie(jwtProvider.createCookie("refresh_token", refreshToken));
+    private void addTokenToResponse(HttpServletResponse response, String name, String token) {
+        response.addCookie(jwtProvider.createCookie(name, token));
     }
 
     public void applyAuthentication(JwtPrincipal jwtPrincipal) {
