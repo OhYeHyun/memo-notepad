@@ -15,6 +15,8 @@ import java.time.Duration;
 @Transactional
 public class JwtProvider {
 
+    private static final Long COOKIE_MARGIN_EXPIRED_MS = Duration.ofMinutes(3).toMillis();
+
     private final JwtUtil jwtUtil;
 
     public String createAccessToken(String name, String loginId, String role) {
@@ -44,7 +46,7 @@ public class JwtProvider {
 
     public Cookie createCookie(TokenName name, String token) {
         Cookie cookie = new Cookie(name.getValue(), token);
-        cookie.setMaxAge(getTokenExpiry(name));
+        cookie.setMaxAge(getCookieExpiry(name));
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
@@ -52,13 +54,16 @@ public class JwtProvider {
         return cookie;
     }
 
-    private int getTokenExpiry(TokenName name) {
+    private int getCookieExpiry(TokenName name) {
         if (TokenName.ACCESS_TOKEN.equals(name)) {
-            return (int) jwtUtil.getAccessTokenExpiry().getSeconds();
+            long marginSeconds = Duration.ofMillis(COOKIE_MARGIN_EXPIRED_MS).getSeconds();
+            return (int) (jwtUtil.getAccessTokenExpiry().getSeconds() +
+                    Duration.ofMillis(COOKIE_MARGIN_EXPIRED_MS).getSeconds());
         }
 
         if (TokenName.REFRESH_TOKEN.equals(name)) {
-            return (int) jwtUtil.getRefreshTokenExpiry().getSeconds();
+            return (int) (jwtUtil.getRefreshTokenExpiry().getSeconds() +
+                    Duration.ofMillis(COOKIE_MARGIN_EXPIRED_MS).getSeconds());
         }
 
         return 0;
