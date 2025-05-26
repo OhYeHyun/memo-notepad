@@ -26,7 +26,7 @@ public class JwtLoginSuccessProcessor {
         String accessToken = jwtProvider.createAccessToken(
                 jwtPrincipal.getName(),
                 jwtPrincipal.getUsername(),
-                jwtPrincipal.getRole()
+                jwtPrincipal.getRole().name()
         );
         String refreshToken = jwtProvider.createRefreshToken(jwtPrincipal.getUsername());
 
@@ -41,7 +41,7 @@ public class JwtLoginSuccessProcessor {
         String accessToken = jwtProvider.createAccessToken(
                 jwtPrincipal.getName(),
                 jwtPrincipal.getUsername(),
-                jwtPrincipal.getRole()
+                jwtPrincipal.getRole().name()
         );
 
         addTokenToResponse(response, TokenName.ACCESS_TOKEN, accessToken);

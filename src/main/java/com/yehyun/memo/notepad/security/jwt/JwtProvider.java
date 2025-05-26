@@ -34,7 +34,7 @@ public class JwtProvider {
         String loginId = jwtUtil.getLoginId(token);
         String roleString = jwtUtil.getRole(token);
 
-        Role role = Role.from(roleString);
+        Role role = Role.valueOf(roleString);
         return new JwtPrincipal(name, loginId, role);
     }
 
@@ -56,7 +56,6 @@ public class JwtProvider {
 
     private int getCookieExpiry(TokenName name) {
         if (TokenName.ACCESS_TOKEN.equals(name)) {
-            long marginSeconds = Duration.ofMillis(COOKIE_MARGIN_EXPIRED_MS).getSeconds();
             return (int) (jwtUtil.getAccessTokenExpiry().getSeconds() +
                     Duration.ofMillis(COOKIE_MARGIN_EXPIRED_MS).getSeconds());
         }

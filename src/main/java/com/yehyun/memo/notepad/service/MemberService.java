@@ -27,7 +27,7 @@ public class MemberService {
                 form.getName(),
                 form.getLoginId(),
                 new BCryptPasswordEncoder().encode(form.getPassword()),
-                Role.USER
+                Role.ROLE_USER
         );
         memberRepository.save(member);
 

@@ -46,8 +46,8 @@ public class JwtPrincipal implements UserDetails, OAuth2User {
         return loginId;
     }
 
-    public String getRole() {
-        return role.getValue();
+    public Role getRole() {
+        return role;
     }
 
     @Override

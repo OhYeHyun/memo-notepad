@@ -19,7 +19,7 @@ public class GuestService {
                 "guest",
                 "guest_" + UUID.randomUUID(),
                 "",
-                Role.GUEST
+                Role.ROLE_GUEST
         );
 
         return createGuestPrincipal(guestMember);
@@ -36,6 +36,6 @@ public class GuestService {
     }
 
     private boolean isGuest(JwtPrincipal member) {
-        return member != null && Role.GUEST.getValue().equals(member.getRole());
+        return member != null && Role.ROLE_GUEST == member.getRole();
     }
 }

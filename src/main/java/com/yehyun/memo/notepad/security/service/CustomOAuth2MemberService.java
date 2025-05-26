@@ -57,7 +57,7 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
                 oAuth2Response.getName(),
                 buildLoginId(oAuth2Response),
                 UUID.randomUUID().toString(),
-                Role.USER,
+                Role.ROLE_USER,
                 oAuth2Response.getProvider(),
                 oAuth2Response.getProviderId()
         );

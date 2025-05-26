@@ -73,7 +73,7 @@ public class JwtAuthenticationService {
             return false;
         }
 
-        if (Role.GUEST.getValue().equals(jwtPrincipal.getRole())) {
+        if (Role.ROLE_GUEST == jwtPrincipal.getRole()) {
             jwtLoginSuccessProcessor.applyAuthentication(jwtPrincipal);
             return true;
         }
@@ -99,7 +99,7 @@ public class JwtAuthenticationService {
         }
 
         if (loginId.startsWith("guest_")) {
-            JwtPrincipal jwtPrincipal = new JwtPrincipal("guest", loginId, Role.GUEST);
+            JwtPrincipal jwtPrincipal = new JwtPrincipal("guest", loginId, Role.ROLE_GUEST);
             jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
             return true;
         }
