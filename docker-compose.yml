@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:latest
@@ -19,10 +17,22 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notepad_local_db
       SPRING_DATASOURCE_USERNAME: localuser
       SPRING_DATASOURCE_PASSWORD: localpassword
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PASSWORD: yehyun
     ports:
       - "8080:8080"
     depends_on:
       - postgres
+      - redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    command: [ "redis-server", "--requirepass", "yehyun" ]
+    ports:
+      - "6379:6379"
     networks:
       - app-network
 
