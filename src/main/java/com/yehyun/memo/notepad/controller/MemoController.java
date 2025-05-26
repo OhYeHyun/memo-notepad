@@ -4,6 +4,7 @@ import com.yehyun.memo.notepad.domain.memo.Memo;
 import com.yehyun.memo.notepad.domain.memo.form.MemoSaveForm;
 import com.yehyun.memo.notepad.domain.memo.form.MemoUpdateForm;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.enums.Role;
 import com.yehyun.memo.notepad.service.MemoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class MemoController {
         model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
         model.addAttribute("principalMemberName", jwtPrincipal.getName());
         model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
+        model.addAttribute("Role", Role.class);
 
         log.info("memoSaveForm: {}", model.getAttribute("memoSaveForm"));
 
@@ -44,6 +46,8 @@ public class MemoController {
             model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
             model.addAttribute("principalMemberName", jwtPrincipal.getName());
             model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
+            model.addAttribute("Role", Role.class);
+
             return "memo/memo";
         }
 
