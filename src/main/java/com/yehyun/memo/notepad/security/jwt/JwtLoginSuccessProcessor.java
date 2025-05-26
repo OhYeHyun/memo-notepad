@@ -2,6 +2,7 @@ package com.yehyun.memo.notepad.security.jwt;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.enums.Role;
 import com.yehyun.memo.notepad.security.enums.TokenName;
 import com.yehyun.memo.notepad.security.service.RedisService;
 import com.yehyun.memo.notepad.service.GuestService;
@@ -53,9 +54,11 @@ public class JwtLoginSuccessProcessor {
         String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.ACCESS_TOKEN);
         if (guestToken != null) {
             JwtPrincipal guest = jwtProvider.createMemberFromToken(guestToken);
-            guestService.transferGuestMemos(guest, jwtPrincipal.getUsername());
 
-            redisService.deleteRefreshToken(guest.getUsername());
+            if (guest != null && guest.getRole() == Role.ROLE_GUEST) {
+                guestService.transferGuestMemos(guest, jwtPrincipal.getUsername());
+                redisService.deleteRefreshToken(guest.getUsername());
+            }
         }
     }
 
