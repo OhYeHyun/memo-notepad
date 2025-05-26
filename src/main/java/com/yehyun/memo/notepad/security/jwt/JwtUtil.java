@@ -16,8 +16,8 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final Long ACCESS_TOKEN_EXPIRED_MS = Duration.ofMinutes(10).toMillis();
-    private static final Long REFRESH_TOKEN_EXPIRED_MS = Duration.ofDays(3).toMillis();
+    private static final Long ACCESS_TOKEN_EXPIRED_MS = Duration.ofMinutes(1).toMillis();
+    private static final Long REFRESH_TOKEN_EXPIRED_MS = Duration.ofDays(1).toMillis();
 
     private final SecretKey secretKey;
 
@@ -36,9 +36,9 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String createRefreshToken(String name) {
+    public String createRefreshToken(String loginId) {
         return Jwts.builder()
-                .claim("name", name)
+                .claim("loginId", loginId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRED_MS))
                 .signWith(secretKey)

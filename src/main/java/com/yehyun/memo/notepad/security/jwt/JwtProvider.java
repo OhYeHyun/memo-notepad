@@ -19,8 +19,8 @@ public class JwtProvider {
         return jwtUtil.createAccessToken(name, loginId, role);
     }
 
-    public String createRefreshToken(String name) {
-        return jwtUtil.createRefreshToken(name);
+    public String createRefreshToken(String loginId) {
+        return jwtUtil.createRefreshToken(loginId);
     }
 
     public JwtPrincipal createMemberFromToken(String token) {
@@ -82,7 +82,7 @@ public class JwtProvider {
         return null;
     }
 
-    public boolean isExpiredAccessToken(String token) {
+    public boolean isExpiredToken(String token) {
         return jwtUtil.isExpiredToken(token);
     }
 

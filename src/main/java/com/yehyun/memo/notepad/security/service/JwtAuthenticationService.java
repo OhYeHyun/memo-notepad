@@ -34,7 +34,7 @@ public class JwtAuthenticationService {
     }
 
     private boolean isValidToken(String token) {
-        return token != null && !jwtProvider.isExpiredAccessToken(token);
+        return token != null && !jwtProvider.isExpiredToken(token);
     }
 
     private boolean authenticateWithAccessToken(String accessToken) {
@@ -49,7 +49,6 @@ public class JwtAuthenticationService {
     }
 
     private boolean authenticateWithRefreshToken(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
-
         String loginId = jwtProvider.getLoginIdFromRefreshToken(refreshToken);
         if (loginId == null) return false;
 
