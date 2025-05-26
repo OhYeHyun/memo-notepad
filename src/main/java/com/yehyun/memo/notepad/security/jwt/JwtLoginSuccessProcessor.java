@@ -2,6 +2,7 @@ package com.yehyun.memo.notepad.security.jwt;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.service.RedisService;
 import com.yehyun.memo.notepad.service.GuestService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,26 +17,40 @@ public class JwtLoginSuccessProcessor {
 
     private final JwtProvider jwtProvider;
     private final GuestService guestService;
+    private final RedisService redisService;
 
-    public void processSuccess(HttpServletRequest request, HttpServletResponse response, JwtPrincipal jwtPrincipal) {
+    public void reissueTokensAndAuthenticate(HttpServletRequest request, HttpServletResponse response, JwtPrincipal jwtPrincipal) {
+        transferGuestDataIfExists(request, jwtPrincipal);
 
-        String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies());
-        if (guestToken != null) {
-            JwtPrincipal guest = jwtProvider.createMemberFromToken(guestToken);
-            guestService.transferGuestMemos(guest, jwtPrincipal.getUsername());
-        }
-
-        addToSecurityContextHolder(jwtPrincipal);
-        String token = jwtProvider.createToken(
+        String accessToken = jwtProvider.createAccessToken(
                 jwtPrincipal.getName(),
                 jwtPrincipal.getUsername(),
                 jwtPrincipal.getRole()
         );
+        String refreshToken = jwtProvider.createRefreshToken(jwtPrincipal.getUsername());
 
-        response.addCookie(jwtProvider.createCookie(token));
+        addTokensToResponse(response, accessToken, refreshToken);
+        redisService.saveRefreshToken(jwtPrincipal.getUsername(), refreshToken, jwtProvider.getRefreshTokenExpiry());
+
+        applyAuthentication(jwtPrincipal);
     }
 
-    public void addToSecurityContextHolder(JwtPrincipal jwtPrincipal) {
+    private void transferGuestDataIfExists(HttpServletRequest request, JwtPrincipal jwtPrincipal) {
+        String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies(), "access_token");
+        if (guestToken != null) {
+            JwtPrincipal guest = jwtProvider.createMemberFromToken(guestToken);
+            guestService.transferGuestMemos(guest, jwtPrincipal.getUsername());
+
+            redisService.deleteRefreshToken(guest.getUsername());
+        }
+    }
+
+    private void addTokensToResponse(HttpServletResponse response, String accessToken, String refreshToken) {
+        response.addCookie(jwtProvider.createCookie("access_token", accessToken));
+        response.addCookie(jwtProvider.createCookie("refresh_token", refreshToken));
+    }
+
+    public void applyAuthentication(JwtPrincipal jwtPrincipal) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(jwtPrincipal, null, jwtPrincipal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }

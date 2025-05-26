@@ -2,7 +2,6 @@ package com.yehyun.memo.notepad.service;
 
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
-import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.validator.ValidationException;
@@ -19,26 +18,14 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final GuestService guestService;
-    private final JwtProvider jwtProvider;
 
-    public JwtPrincipal signupWithPossibleGuest(MemberSaveForm form, String existingToken) {
+    public JwtPrincipal createGuestMember(MemberSaveForm form) {
         validateMemberSaveForm(form);
 
-        if (existingToken != null) {
-            JwtPrincipal existingMember = jwtProvider.createMemberFromToken(existingToken);
-            guestService.transferGuestMemos(existingMember, form.getLoginId());
-        }
-
-        return createGuestMember(form);
-    }
-
-    private JwtPrincipal createGuestMember(MemberSaveForm form) {
         Member member = Member.ofLocal(
                 form.getName(),
                 form.getLoginId(),
-                bCryptPasswordEncoder.encode(form.getPassword()),
+                new BCryptPasswordEncoder().encode(form.getPassword()),
                 "ROLE_USER"
         );
         memberRepository.save(member);

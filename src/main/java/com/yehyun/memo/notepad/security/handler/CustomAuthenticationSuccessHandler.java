@@ -23,7 +23,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         PrincipalMember principalMember = (PrincipalMember) authentication.getPrincipal();
         JwtPrincipal jwtPrincipal = jwtLoginSuccessProcessor.createJwtPrincipal(principalMember);
 
-        jwtLoginSuccessProcessor.processSuccess(request, response, jwtPrincipal);
+        jwtLoginSuccessProcessor.reissueTokensAndAuthenticate(request, response, jwtPrincipal);
         getRedirectStrategy().sendRedirect(request, response, "/");
     }
 }
