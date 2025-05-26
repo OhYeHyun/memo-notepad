@@ -4,11 +4,9 @@ import com.yehyun.memo.notepad.security.handler.CustomAuthenticationFailureHandl
 import com.yehyun.memo.notepad.security.handler.CustomAuthenticationSuccessHandler;
 import com.yehyun.memo.notepad.security.handler.CustomLogoutSuccessHandler;
 import com.yehyun.memo.notepad.security.jwt.JwtFilter;
-import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
-import com.yehyun.memo.notepad.security.jwt.JwtProvider;
-import com.yehyun.memo.notepad.security.jwt.JwtUtil;
 import com.yehyun.memo.notepad.security.service.CustomMemberDetailsService;
 import com.yehyun.memo.notepad.security.service.CustomOAuth2MemberService;
+import com.yehyun.memo.notepad.security.service.JwtAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtUtil jwtUtil;
-    private final JwtProvider jwtProvider;
-    private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
+    private final JwtFilter jwtFilter;
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
@@ -96,7 +92,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
-                .addFilterBefore(new JwtFilter(jwtUtil, jwtProvider, jwtLoginSuccessProcessor), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

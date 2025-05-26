@@ -11,6 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -50,6 +52,10 @@ public class MemberService {
 
     public Member findById(Long id) {
         return memberRepository.findById(id).orElseThrow();
+    }
+
+    public Optional<Member> findByLoginId(String loginId) {
+        return memberRepository.findByLoginId(loginId);
     }
 
     private void validateMemberSaveForm(MemberSaveForm form) {
