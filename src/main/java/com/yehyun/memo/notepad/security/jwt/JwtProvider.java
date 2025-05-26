@@ -1,6 +1,8 @@
 package com.yehyun.memo.notepad.security.jwt;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.enums.Role;
+import com.yehyun.memo.notepad.security.enums.TokenName;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,8 +30,9 @@ public class JwtProvider {
 
         String name = jwtUtil.getName(token);
         String loginId = jwtUtil.getLoginId(token);
-        String role = jwtUtil.getRole(token);
+        String roleString = jwtUtil.getRole(token);
 
+        Role role = Role.from(roleString);
         return new JwtPrincipal(name, loginId, role);
     }
 
@@ -39,8 +42,8 @@ public class JwtProvider {
         return jwtUtil.getLoginId(token);
     }
 
-    public Cookie createCookie(String name, String token) {
-        Cookie cookie = new Cookie(name, token);
+    public Cookie createCookie(TokenName name, String token) {
+        Cookie cookie = new Cookie(name.getValue(), token);
         cookie.setMaxAge(getTokenExpiry(name));
         cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -49,20 +52,20 @@ public class JwtProvider {
         return cookie;
     }
 
-    private int getTokenExpiry(String name) {
-        if ("access_token".equals(name)) {
+    private int getTokenExpiry(TokenName name) {
+        if (TokenName.ACCESS_TOKEN.equals(name)) {
             return (int) jwtUtil.getAccessTokenExpiry().getSeconds();
         }
 
-        if ("refresh_token".equals(name)) {
+        if (TokenName.REFRESH_TOKEN.equals(name)) {
             return (int) jwtUtil.getRefreshTokenExpiry().getSeconds();
         }
 
         return 0;
     }
 
-    public Cookie expireCookie(String name) {
-        Cookie cookie = new Cookie(name, null);
+    public Cookie expireCookie(TokenName name) {
+        Cookie cookie = new Cookie(name.getValue(), null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -71,10 +74,10 @@ public class JwtProvider {
         return cookie;
     }
 
-    public String extractTokenFromCookies(Cookie[] cookies, String name) {
+    public String extractTokenFromCookies(Cookie[] cookies, TokenName name) {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
+                if (cookie.getName().equals(name.getValue())) {
                     return cookie.getValue();
                 }
             }

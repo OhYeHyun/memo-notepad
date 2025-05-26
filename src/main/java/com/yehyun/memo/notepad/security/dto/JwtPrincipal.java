@@ -1,5 +1,8 @@
 package com.yehyun.memo.notepad.security.dto;
 
+import com.yehyun.memo.notepad.security.enums.Role;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -12,10 +15,12 @@ public class JwtPrincipal implements UserDetails, OAuth2User {
 
     private final String name;
     private final String loginId;
-    private final String role;
+
+    @Enumerated(EnumType.STRING)
+    private final Role role;
     private final Map<String, Object> attributes;
 
-    public JwtPrincipal(String name, String loginId, String role) {
+    public JwtPrincipal(String name, String loginId, Role role) {
         this.name = name;
         this.loginId = loginId;
         this.role = role;
@@ -29,7 +34,7 @@ public class JwtPrincipal implements UserDetails, OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> role);
+        return List.of((GrantedAuthority) () -> role.name());
     }
 
     public String getName() {
@@ -42,7 +47,7 @@ public class JwtPrincipal implements UserDetails, OAuth2User {
     }
 
     public String getRole() {
-        return role;
+        return role.getValue();
     }
 
     @Override

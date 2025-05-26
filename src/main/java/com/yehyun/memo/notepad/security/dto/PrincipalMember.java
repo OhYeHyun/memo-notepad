@@ -1,13 +1,13 @@
 package com.yehyun.memo.notepad.security.dto;
 
 import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.security.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 public class PrincipalMember implements UserDetails, OAuth2User {
@@ -34,7 +34,7 @@ public class PrincipalMember implements UserDetails, OAuth2User {
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(() -> member.getRole());
+        collection.add(() -> member.getRole().getValue());
 
         return collection;
     }
@@ -60,11 +60,7 @@ public class PrincipalMember implements UserDetails, OAuth2User {
         return member.getPassword() != null ? member.getPassword() : "";
     }
 
-    public String getRole() {
-        Collection<? extends GrantedAuthority> authorities = getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-
-        return auth.getAuthority();
+    public Role getRole() {
+        return member.getRole();
     }
 }

@@ -2,6 +2,7 @@ package com.yehyun.memo.notepad.service;
 
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.enums.Role;
 import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
 import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.validator.ValidationException;
@@ -26,7 +27,7 @@ public class MemberService {
                 form.getName(),
                 form.getLoginId(),
                 new BCryptPasswordEncoder().encode(form.getPassword()),
-                "ROLE_USER"
+                Role.USER
         );
         memberRepository.save(member);
 

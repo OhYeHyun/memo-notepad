@@ -1,6 +1,7 @@
 package com.yehyun.memo.notepad.security.jwt;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.enums.TokenName;
 import com.yehyun.memo.notepad.security.service.RedisService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,14 +17,15 @@ public class JwtLogoutSuccessProcessor {
     private final RedisService redisService;
 
     public void processSuccess(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), "access_token");
+        String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.ACCESS_TOKEN);
         JwtPrincipal jwtPrincipal = jwtProvider.createMemberFromToken(accessToken);
+
         redisService.deleteRefreshToken(jwtPrincipal.getUsername());
 
-        Cookie accessCookie = jwtProvider.expireCookie("access_token");
+        Cookie accessCookie = jwtProvider.expireCookie(TokenName.ACCESS_TOKEN);
         response.addCookie(accessCookie);
 
-        Cookie refreshCookie = jwtProvider.expireCookie("refresh_token");
+        Cookie refreshCookie = jwtProvider.expireCookie(TokenName.REFRESH_TOKEN);
         response.addCookie(refreshCookie);
     }
 }

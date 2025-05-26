@@ -2,6 +2,7 @@ package com.yehyun.memo.notepad.service;
 
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class GuestService {
                 "guest",
                 "guest_" + UUID.randomUUID(),
                 "",
-                "ROLE_GUEST"
+                Role.GUEST
         );
 
         return createGuestPrincipal(guestMember);
@@ -35,6 +36,6 @@ public class GuestService {
     }
 
     private boolean isGuest(JwtPrincipal member) {
-        return member != null && "ROLE_GUEST".equals(member.getRole());
+        return member != null && Role.GUEST.getValue().equals(member.getRole());
     }
 }

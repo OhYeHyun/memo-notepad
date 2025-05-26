@@ -3,6 +3,7 @@ package com.yehyun.memo.notepad.security.service;
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.enums.Role;
 import com.yehyun.memo.notepad.security.oauth.KakaoResponse;
 import com.yehyun.memo.notepad.security.oauth.OAuth2Response;
 import jakarta.transaction.Transactional;
@@ -56,7 +57,7 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
                 oAuth2Response.getName(),
                 buildLoginId(oAuth2Response),
                 UUID.randomUUID().toString(),
-                "ROLE_USER",
+                Role.USER,
                 oAuth2Response.getProvider(),
                 oAuth2Response.getProviderId()
         );

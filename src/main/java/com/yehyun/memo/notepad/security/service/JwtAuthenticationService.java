@@ -3,6 +3,8 @@ package com.yehyun.memo.notepad.security.service;
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.enums.AuthStatus;
+import com.yehyun.memo.notepad.security.enums.Role;
+import com.yehyun.memo.notepad.security.enums.TokenName;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.service.MemberService;
@@ -21,8 +23,8 @@ public class JwtAuthenticationService {
     private final MemberService memberService;
 
     public AuthStatus authenticateStatus(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), "access_token");
-        String refreshToken = jwtProvider.extractTokenFromCookies(request.getCookies(), "refresh_token");
+        String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.ACCESS_TOKEN);
+        String refreshToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.REFRESH_TOKEN);
 
         if (accessToken == null && refreshToken == null) {
             return AuthStatus.NO_TOKEN;
@@ -71,7 +73,7 @@ public class JwtAuthenticationService {
             return false;
         }
 
-        if ("ROLE_GUEST".equals(jwtPrincipal.getRole())) {
+        if (Role.GUEST.getValue().equals(jwtPrincipal.getRole())) {
             jwtLoginSuccessProcessor.applyAuthentication(jwtPrincipal);
             return true;
         }
@@ -97,7 +99,7 @@ public class JwtAuthenticationService {
         }
 
         if (loginId.startsWith("guest_")) {
-            JwtPrincipal jwtPrincipal = new JwtPrincipal("guest", loginId, "ROLE_GUEST");
+            JwtPrincipal jwtPrincipal = new JwtPrincipal("guest", loginId, Role.GUEST);
             jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
             return true;
         }

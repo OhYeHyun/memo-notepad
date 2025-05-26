@@ -10,17 +10,19 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class RedisService {
 
+    private static final String PREFIX = "refresh:";
+
     private final RedisTemplate<String, String> redisTemplate;
 
     public String getRefreshTokenByLoginId(String loginId) {
-        return redisTemplate.opsForValue().get("refresh:" + loginId);
+        return redisTemplate.opsForValue().get(PREFIX + loginId);
     }
 
     public void saveRefreshToken(String loginId, String refreshToken, Duration expiration) {
-        redisTemplate.opsForValue().set("refresh:" + loginId, refreshToken, expiration);
+        redisTemplate.opsForValue().set(PREFIX + loginId, refreshToken, expiration);
     }
 
     public void deleteRefreshToken(String loginId) {
-        redisTemplate.delete("refresh:" + loginId);
+        redisTemplate.delete(PREFIX + loginId);
     }
 }

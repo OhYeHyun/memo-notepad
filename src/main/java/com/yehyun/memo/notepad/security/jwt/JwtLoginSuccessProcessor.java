@@ -2,6 +2,7 @@ package com.yehyun.memo.notepad.security.jwt;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.enums.TokenName;
 import com.yehyun.memo.notepad.security.service.RedisService;
 import com.yehyun.memo.notepad.service.GuestService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,8 +30,8 @@ public class JwtLoginSuccessProcessor {
         );
         String refreshToken = jwtProvider.createRefreshToken(jwtPrincipal.getUsername());
 
-        addTokenToResponse(response, "access_token", accessToken);
-        addTokenToResponse(response, "refresh_token", refreshToken);
+        addTokenToResponse(response, TokenName.ACCESS_TOKEN, accessToken);
+        addTokenToResponse(response, TokenName.REFRESH_TOKEN, refreshToken);
         redisService.saveRefreshToken(jwtPrincipal.getUsername(), refreshToken, jwtProvider.getRefreshTokenExpiry());
 
         applyAuthentication(jwtPrincipal);
@@ -43,13 +44,13 @@ public class JwtLoginSuccessProcessor {
                 jwtPrincipal.getRole()
         );
 
-        addTokenToResponse(response, "access_token", accessToken);
+        addTokenToResponse(response, TokenName.ACCESS_TOKEN, accessToken);
 
         applyAuthentication(jwtPrincipal);
     }
 
     private void transferGuestDataIfExists(HttpServletRequest request, JwtPrincipal jwtPrincipal) {
-        String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies(), "access_token");
+        String guestToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.ACCESS_TOKEN);
         if (guestToken != null) {
             JwtPrincipal guest = jwtProvider.createMemberFromToken(guestToken);
             guestService.transferGuestMemos(guest, jwtPrincipal.getUsername());
@@ -58,7 +59,7 @@ public class JwtLoginSuccessProcessor {
         }
     }
 
-    private void addTokenToResponse(HttpServletResponse response, String name, String token) {
+    private void addTokenToResponse(HttpServletResponse response, TokenName name, String token) {
         response.addCookie(jwtProvider.createCookie(name, token));
     }
 
