@@ -10,25 +10,37 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private static final Long EXPIRED_MS = 60 * 60 * 10L;
+    private static final Long ACCESS_TOKEN_EXPIRED_MS = Duration.ofMinutes(10).toMillis();
+    private static final Long REFRESH_TOKEN_EXPIRED_MS = Duration.ofDays(3).toMillis();
+
     private final SecretKey secretKey;
 
     public JwtUtil(@Value("${spring.jwt.secret}") String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String createJwt(String name, String loginId, String role) {
+    public String createAccessToken(String name, String loginId, String role) {
         return Jwts.builder()
                 .claim("name", name)
                 .claim("loginId", loginId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRED_MS))
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRED_MS))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String createRefreshToken(String name) {
+        return Jwts.builder()
+                .claim("name", name)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRED_MS))
                 .signWith(secretKey)
                 .compact();
     }
@@ -47,9 +59,17 @@ public class JwtUtil {
         }
     }
 
-    public boolean isExpired(String token) {
+    public boolean isExpiredToken(String token) {
         Claims claims = parseClaims(token);
         return claims == null || claims.getExpiration().before(new Date());
+    }
+
+    public Duration getAccessTokenExpiry() {
+        return Duration.ofMillis(ACCESS_TOKEN_EXPIRED_MS);
+    }
+
+    public Duration getRefreshTokenExpiry() {
+        return Duration.ofMillis(REFRESH_TOKEN_EXPIRED_MS);
     }
 
     public String getName(String token) {
