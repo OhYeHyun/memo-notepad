@@ -1,5 +1,6 @@
 package com.yehyun.memo.notepad.security.jwt;
 
+import com.yehyun.memo.notepad.security.enums.AuthStatus;
 import com.yehyun.memo.notepad.security.service.JwtAuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,13 +26,18 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        boolean authenticated = jwtAuthenticationService.authenticate(request, response);
-        if (!authenticated) {
-            response.sendRedirect("/login?error=expired");
+        AuthStatus status = jwtAuthenticationService.authenticateStatus(request, response);
+        if (status == AuthStatus.SUCCESS) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        filterChain.doFilter(request, response);
+        if (status == AuthStatus.NO_TOKEN) {
+            response.sendRedirect("/login");
+            return;
+        }
+
+        response.sendRedirect("/login?error=expired");
     }
 
     private boolean isPublicPath(String path) {

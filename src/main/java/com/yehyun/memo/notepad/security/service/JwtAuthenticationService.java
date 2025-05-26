@@ -2,6 +2,7 @@ package com.yehyun.memo.notepad.security.service;
 
 import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
+import com.yehyun.memo.notepad.security.enums.AuthStatus;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.security.jwt.JwtProvider;
 import com.yehyun.memo.notepad.service.MemberService;
@@ -19,41 +20,81 @@ public class JwtAuthenticationService {
     private final RedisService redisService;
     private final MemberService memberService;
 
-    public boolean authenticate(HttpServletRequest request, HttpServletResponse response) {
+    public AuthStatus authenticateStatus(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), "access_token");
-        if (isValidToken(accessToken)) {
-            return authenticateWithAccessToken(accessToken);
-        }
-
         String refreshToken = jwtProvider.extractTokenFromCookies(request.getCookies(), "refresh_token");
-        if (isValidToken(refreshToken)) {
-            return authenticateWithRefreshToken(request, response, refreshToken);
+
+        if (accessToken == null && refreshToken == null) {
+            return AuthStatus.NO_TOKEN;
         }
 
-        return false;
+        if (accessToken != null) {
+            return handleAccessToken(accessToken, refreshToken, response);
+        }
+
+        return handleRefreshTokenOnly(refreshToken, response);
     }
 
-    private boolean isValidToken(String token) {
-        return token != null && !jwtProvider.isExpiredToken(token);
+    private AuthStatus handleAccessToken(String accessToken, String refreshToken, HttpServletResponse response) {
+        if (jwtProvider.isExpiredToken(accessToken)) {
+
+            if (refreshToken != null && !jwtProvider.isExpiredToken(refreshToken)) {
+
+                if (authenticateWithRefreshToken(response, refreshToken)) {
+                    return AuthStatus.SUCCESS;
+                }
+                return AuthStatus.INVALID_TOKEN;
+            }
+            return AuthStatus.TOKEN_EXPIRED;
+        }
+
+        if (authenticateWithAccessToken(accessToken)) {
+            return AuthStatus.SUCCESS;
+        }
+        return AuthStatus.INVALID_TOKEN;
+    }
+
+    private AuthStatus handleRefreshTokenOnly(String refreshToken, HttpServletResponse response) {
+        if (jwtProvider.isExpiredToken(refreshToken)) {
+            return AuthStatus.TOKEN_EXPIRED;
+        }
+
+        if (authenticateWithRefreshToken(response, refreshToken)) {
+            return AuthStatus.SUCCESS;
+        }
+        return AuthStatus.INVALID_TOKEN;
     }
 
     private boolean authenticateWithAccessToken(String accessToken) {
         JwtPrincipal jwtPrincipal = jwtProvider.createMemberFromToken(accessToken);
-        if (jwtPrincipal == null) return false;
+        if (jwtPrincipal == null) {
+            return false;
+        }
+
+        if ("ROLE_GUEST".equals(jwtPrincipal.getRole())) {
+            jwtLoginSuccessProcessor.applyAuthentication(jwtPrincipal);
+            return true;
+        }
 
         Member member = memberService.findByLoginId(jwtPrincipal.getUsername()).orElse(null);
-        if (member == null && !"ROLE_GUEST".equals(jwtPrincipal.getRole())) return false;
+        if (member == null) {
+            return false;
+        }
 
         jwtLoginSuccessProcessor.applyAuthentication(jwtPrincipal);
         return true;
     }
 
-    private boolean authenticateWithRefreshToken(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
+    private boolean authenticateWithRefreshToken(HttpServletResponse response, String refreshToken) {
         String loginId = jwtProvider.getLoginIdFromRefreshToken(refreshToken);
-        if (loginId == null) return false;
+        if (loginId == null) {
+            return false;
+        }
 
         String savedRefreshToken = redisService.getRefreshTokenByLoginId(loginId);
-        if (!refreshToken.equals(savedRefreshToken)) return false;
+        if (!refreshToken.equals(savedRefreshToken)) {
+            return false;
+        }
 
         if (loginId.startsWith("guest_")) {
             JwtPrincipal jwtPrincipal = new JwtPrincipal("guest", loginId, "ROLE_GUEST");
@@ -62,7 +103,9 @@ public class JwtAuthenticationService {
         }
 
         Member member = memberService.findByLoginId(loginId).orElse(null);
-        if (member == null) return false;
+        if (member == null) {
+            return false;
+        }
 
         JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
         jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
