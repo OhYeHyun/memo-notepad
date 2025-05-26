@@ -6,7 +6,6 @@ import com.yehyun.memo.notepad.security.handler.CustomLogoutSuccessHandler;
 import com.yehyun.memo.notepad.security.jwt.JwtFilter;
 import com.yehyun.memo.notepad.security.service.CustomMemberDetailsService;
 import com.yehyun.memo.notepad.security.service.CustomOAuth2MemberService;
-import com.yehyun.memo.notepad.security.service.JwtAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -34,7 +34,7 @@ public class PrincipalMember implements UserDetails, OAuth2User {
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(() -> member.getRole().getValue());
+        collection.add(() -> member.getRole().name());
 
         return collection;
     }
