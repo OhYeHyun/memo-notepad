@@ -37,13 +37,13 @@
 
 ## 🖥️ 화면 예시
 
-| 메모 목록 화면                                                | 메모 수정 화면                                                |  
-|---------------------------------------------------------|---------------------------------------------------------|
-| ![img_1.png](src/main/resources/static/image/img_1.png) | ![img_2.png](src/main/resources/static/image/img_2.png) |   
+| 메모 목록 화면                                                        | 메모 수정 화면                                                        |  
+|-----------------------------------------------------------------|-----------------------------------------------------------------|
+| ![memo_list.png](src/main/resources/static/image/memo_list.png) | ![memo_edit.png](src/main/resources/static/image/memo_edit.png) |   
 
-|로그인 화면                                          | 회원가입 화면                                                 |
-|--------|------|
-![img.png](src/main/resources/static/image/img.png)| ![img_3.png](src/main/resources/static/image/img_3.png) |
+|로그인 화면                                          | 회원가입 화면                                                   |
+|--------|-----------------------------------------------------------|
+![login.png](src/main/resources/static/image/login.png)| ![signup.png](src/main/resources/static/image/signup.png) |
 
 
 ---
