@@ -78,7 +78,7 @@ public class JwtAuthenticationService {
             return true;
         }
 
-        Member member = memberService.findByLoginId(jwtPrincipal.getUsername()).orElse(null);
+        Member member = memberService.findById(jwtPrincipal.getId());
         if (member == null) {
             return false;
         }
@@ -88,28 +88,22 @@ public class JwtAuthenticationService {
     }
 
     private boolean authenticateWithRefreshToken(HttpServletResponse response, String refreshToken) {
-        String loginId = jwtProvider.getLoginIdFromRefreshToken(refreshToken);
-        if (loginId == null) {
+        Long id = jwtProvider.getIdFromRefreshToken(refreshToken);
+        if (id == null) {
             return false;
         }
 
-        String savedRefreshToken = redisService.getRefreshTokenByLoginId(loginId);
+        String savedRefreshToken = redisService.getRefreshTokenById(id);
         if (!refreshToken.equals(savedRefreshToken)) {
             return false;
         }
 
-        if (loginId.startsWith("guest_")) {
-            JwtPrincipal jwtPrincipal = new JwtPrincipal("guest", loginId, Role.ROLE_GUEST);
-            jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
-            return true;
-        }
-
-        Member member = memberService.findByLoginId(loginId).orElse(null);
+        Member member = memberService.findById(id);
         if (member == null) {
             return false;
         }
 
-        JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
+        JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getId(), member.getName(), member.getRole());
         jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
         return true;
     }

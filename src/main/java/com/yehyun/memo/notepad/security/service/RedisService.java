@@ -14,15 +14,15 @@ public class RedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public String getRefreshTokenByLoginId(String loginId) {
-        return redisTemplate.opsForValue().get(PREFIX + loginId);
+    public String getRefreshTokenById(Long id) {
+        return redisTemplate.opsForValue().get(PREFIX + id);
     }
 
-    public void saveRefreshToken(String loginId, String refreshToken, Duration expiration) {
-        redisTemplate.opsForValue().set(PREFIX + loginId, refreshToken, expiration);
+    public void saveRefreshToken(Long id, String refreshToken, Duration expiration) {
+        redisTemplate.opsForValue().set(PREFIX + id, refreshToken, expiration);
     }
 
-    public void deleteRefreshToken(String loginId) {
-        redisTemplate.delete(PREFIX + loginId);
+    public void deleteRefreshToken(Long id) {
+        redisTemplate.delete(PREFIX + id);
     }
 }

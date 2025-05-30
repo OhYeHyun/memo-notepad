@@ -25,10 +25,10 @@ public class JwtUtil {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String createAccessToken(String name, String loginId, String role) {
+    public String createAccessToken(Long id, String name, String role) {
         return Jwts.builder()
+                .claim("id", id.toString())
                 .claim("name", name)
-                .claim("loginId", loginId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRED_MS))
@@ -36,9 +36,9 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String createRefreshToken(String loginId) {
+    public String createRefreshToken(Long id) {
         return Jwts.builder()
-                .claim("loginId", loginId)
+                .claim("id", id.toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRED_MS))
                 .signWith(secretKey)
@@ -72,14 +72,14 @@ public class JwtUtil {
         return Duration.ofMillis(REFRESH_TOKEN_EXPIRED_MS);
     }
 
+    public String getId(String token) {
+        Claims claims = parseClaims(token);
+        return claims != null ? claims.get("id", String.class) : null;
+    }
+
     public String getName(String token) {
         Claims claims = parseClaims(token);
         return claims != null ? claims.get("name", String.class) : null;
-    }
-
-    public String getLoginId(String token) {
-        Claims claims = parseClaims(token);
-        return claims != null ? claims.get("loginId", String.class) : null;
     }
 
     public String getRole(String token) {

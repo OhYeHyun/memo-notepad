@@ -20,7 +20,7 @@ public class JwtLogoutSuccessProcessor {
         String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.ACCESS_TOKEN);
         JwtPrincipal jwtPrincipal = jwtProvider.createMemberFromToken(accessToken);
 
-        redisService.deleteRefreshToken(jwtPrincipal.getUsername());
+        redisService.deleteRefreshToken(jwtPrincipal.getId());
 
         Cookie accessCookie = jwtProvider.expireCookie(TokenName.ACCESS_TOKEN);
         response.addCookie(accessCookie);

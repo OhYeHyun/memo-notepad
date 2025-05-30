@@ -25,23 +25,23 @@ public class JwtLoginSuccessProcessor {
         transferGuestDataIfExists(request, jwtPrincipal);
 
         String accessToken = jwtProvider.createAccessToken(
+                jwtPrincipal.getId(),
                 jwtPrincipal.getName(),
-                jwtPrincipal.getUsername(),
                 jwtPrincipal.getRole().name()
         );
-        String refreshToken = jwtProvider.createRefreshToken(jwtPrincipal.getUsername());
+        String refreshToken = jwtProvider.createRefreshToken(jwtPrincipal.getId());
 
         addTokenToResponse(response, TokenName.ACCESS_TOKEN, accessToken);
         addTokenToResponse(response, TokenName.REFRESH_TOKEN, refreshToken);
-        redisService.saveRefreshToken(jwtPrincipal.getUsername(), refreshToken, jwtProvider.getRefreshTokenExpiry());
+        redisService.saveRefreshToken(jwtPrincipal.getId(), refreshToken, jwtProvider.getRefreshTokenExpiry());
 
         applyAuthentication(jwtPrincipal);
     }
 
     public void reissueAccessTokenAndAuthenticate(HttpServletResponse response, JwtPrincipal jwtPrincipal) {
         String accessToken = jwtProvider.createAccessToken(
+                jwtPrincipal.getId(),
                 jwtPrincipal.getName(),
-                jwtPrincipal.getUsername(),
                 jwtPrincipal.getRole().name()
         );
 
@@ -56,8 +56,8 @@ public class JwtLoginSuccessProcessor {
             JwtPrincipal guest = jwtProvider.createMemberFromToken(guestToken);
 
             if (guest != null && guest.getRole() == Role.ROLE_GUEST) {
-                guestService.transferGuestMemos(guest, jwtPrincipal.getUsername());
-                redisService.deleteRefreshToken(guest.getUsername());
+                guestService.transferGuestMemos(guest, jwtPrincipal.getId());
+                redisService.deleteRefreshToken(guest.getId());
             }
         }
     }
@@ -73,8 +73,8 @@ public class JwtLoginSuccessProcessor {
 
     public JwtPrincipal createJwtPrincipal(PrincipalMember principalMember) {
         return new JwtPrincipal(
-                principalMember.getNickname(),
-                principalMember.getUsername(),
+                principalMember.getId(),
+                principalMember.getName(),
                 principalMember.getRole()
         );
     }

@@ -19,29 +19,29 @@ public class JwtProvider {
 
     private final JwtUtil jwtUtil;
 
-    public String createAccessToken(String name, String loginId, String role) {
-        return jwtUtil.createAccessToken(name, loginId, role);
+    public String createAccessToken(Long id, String name, String role) {
+        return jwtUtil.createAccessToken(id, name, role);
     }
 
-    public String createRefreshToken(String loginId) {
-        return jwtUtil.createRefreshToken(loginId);
+    public String createRefreshToken(Long id) {
+        return jwtUtil.createRefreshToken(id);
     }
 
     public JwtPrincipal createMemberFromToken(String token) {
         if (jwtUtil.isExpiredToken(token)) return null;
 
+        Long id = Long.valueOf(jwtUtil.getId(token));
         String name = jwtUtil.getName(token);
-        String loginId = jwtUtil.getLoginId(token);
         String roleString = jwtUtil.getRole(token);
 
         Role role = Role.valueOf(roleString);
-        return new JwtPrincipal(name, loginId, role);
+        return new JwtPrincipal(id, name, role);
     }
 
-    public String getLoginIdFromRefreshToken(String token) {
+    public Long getIdFromRefreshToken(String token) {
         if (jwtUtil.isExpiredToken(token)) return null;
 
-        return jwtUtil.getLoginId(token);
+        return Long.valueOf(jwtUtil.getId(token));
     }
 
     public Cookie createCookie(TokenName name, String token) {

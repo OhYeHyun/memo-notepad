@@ -35,15 +35,11 @@ public class MemberService {
     }
 
     private JwtPrincipal createMemberPrinciple(Member member) {
-        return new JwtPrincipal(member.getName(), member.getLoginId(), member.getRole());
+        return new JwtPrincipal(member.getId(), member.getName(), member.getRole());
     }
 
     public Member findById(Long id) {
         return memberRepository.findById(id).orElseThrow();
-    }
-
-    public Optional<Member> findByLoginId(String loginId) {
-        return memberRepository.findByLoginId(loginId);
     }
 
     private void validateMemberSaveForm(MemberSaveForm form) {

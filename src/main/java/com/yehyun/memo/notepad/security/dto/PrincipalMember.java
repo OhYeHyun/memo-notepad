@@ -39,20 +39,20 @@ public class PrincipalMember implements UserDetails, OAuth2User {
         return collection;
     }
 
-    public String getNickname() {
-        return member.getName();
+    public Long getId() {
+        return member.getId();
     }
 
     // OAuth
     @Override
     public String getName() {
-        return member.getLoginId();
+        return member.getName();
     }
 
     // UserDetails
     @Override
     public String getUsername() {
-        return member.getLoginId();
+        return member.getName();
     }
 
     @Override

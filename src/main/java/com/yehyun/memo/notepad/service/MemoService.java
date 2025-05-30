@@ -1,6 +1,9 @@
 package com.yehyun.memo.notepad.service;
 
+import com.yehyun.memo.notepad.domain.member.Member;
 import com.yehyun.memo.notepad.domain.memo.Memo;
+import com.yehyun.memo.notepad.domain.memo.form.MemoSearchCond;
+import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.repository.MemoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,39 +19,49 @@ import java.util.stream.Collectors;
 public class MemoService {
 
     private final MemoRepository memoRepository;
+    private final MemberRepository memberRepository;
 
-    public List<Memo> getAllMemos(String writerId) {
-        return memoRepository.findAll(writerId)
+    public List<Memo> getAllMemos(Long memberId) {
+        return memoRepository.findMemoList(memberId)
                 .stream()
                 .sorted(Comparator.comparing(Memo::getCreatedDate))
                 .collect(Collectors.toList());
     }
 
-    public Memo saveMemo(String content, String writerId) {
-        Memo memo = new Memo(content, writerId);
+    public Memo saveMemo(String content, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        Memo memo = new Memo(content, member);
+
         return memoRepository.save(memo);
     }
 
-    public void toggleMemo(Long id) {
-        Memo memo = memoRepository.findById(id).orElseThrow();
+    public void toggleMemo(Long memoId) {
+        Memo memo = memoRepository.findById(memoId).orElseThrow();
         memo.toggleCheck();
     }
 
-    public void deleteMemo(Long id) {
-        Memo memo = memoRepository.findById(id).orElseThrow();
+    public void deleteMemo(Long memoId) {
+        Memo memo = memoRepository.findById(memoId).orElseThrow();
         memoRepository.delete(memo);
     }
 
-    public Memo findById(Long id) {
-        return memoRepository.findById(id).orElseThrow();
+    public Memo findById(Long memoId) {
+        return memoRepository.findById(memoId).orElseThrow();
     }
 
     public void updateMemo(Long id, String content) {
         Memo memo = memoRepository.findById(id).orElseThrow();
-        memo.update(content);
+        memo.updateContent(content);
     }
 
-    public void updateWriterId(String guestId, String loginId) {
-        memoRepository.updateWriterId(guestId, loginId);
+    public void updateWriterId(Long guestId, Long memberId) {
+        List<Memo> guestMemoList = memoRepository.findMemoList(guestId);
+        Member member = memberRepository.findById(memberId).orElseThrow();
+
+        guestMemoList.forEach(memo -> memo.updateWriter(member));
+    }
+
+    public List<Memo> searchMemos(MemoSearchCond cond, Long writerId) {
+        return memoRepository.searchMemos(cond, writerId);
     }
 }
