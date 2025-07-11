@@ -10,19 +10,26 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
     private Long id;
 
+    @Column(name = "name")
     private String name;
 
-    @Column(unique = true)
+    @Column(name = "login_id", unique = true)
     private String loginId;
 
+    @Column(name = "password")
     private String password;
 
+    @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "provider")
     private String provider;
+
+    @Column(name = "provider_id")
     private String providerId;
 
     public Member() {

@@ -17,6 +17,20 @@
     <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
+<form th:object="${memoSearch}" method="get" class="">
+    <div class="row">
+        <div class="col">
+            <input type="text" th:field="*{content}" class="" placeholder="메모내용"/>
+        </div>
+        <div class="col">
+            <input type="text" th:field="*{createdDate}" class="" placeholder="작성일"/>
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-secondary mb-2">검색</button>
+        </div>
+    </div>
+
+</form>
 <div class="outer">
     <section class="top">
         <div class="memo" th:text="${principalMemberName} + '\'s MEMO 😊'">Memo</div>
