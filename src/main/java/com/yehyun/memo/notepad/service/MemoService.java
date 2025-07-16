@@ -5,6 +5,7 @@ import com.yehyun.memo.notepad.domain.memo.Memo;
 import com.yehyun.memo.notepad.domain.memo.form.MemoSearchCond;
 import com.yehyun.memo.notepad.repository.MemberRepository;
 import com.yehyun.memo.notepad.repository.MemoRepository;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,14 @@ public class MemoService {
     private final MemoRepository memoRepository;
     private final MemberRepository memberRepository;
 
-    public List<Memo> getAllMemos(Long memberId) {
-        return memoRepository.findMemoList(memberId)
-                .stream()
-                .sorted(Comparator.comparing(Memo::getCreatedDate))
-                .collect(Collectors.toList());
+    public List<Memo> getAllMemos(@Nullable MemoSearchCond cond, Long memberId) {
+        if (cond == null) {
+            return memoRepository.findMemoList(memberId)
+                    .stream()
+                    .sorted(Comparator.comparing(Memo::getCreatedDate))
+                    .collect(Collectors.toList());
+        }
+        return memoRepository.searchMemos(cond, memberId);
     }
 
     public Memo saveMemo(String content, Long memberId) {
@@ -59,9 +63,5 @@ public class MemoService {
         Member member = memberRepository.findById(memberId).orElseThrow();
 
         guestMemoList.forEach(memo -> memo.updateWriter(member));
-    }
-
-    public List<Memo> searchMemos(MemoSearchCond cond, Long writerId) {
-        return memoRepository.searchMemos(cond, writerId);
     }
 }

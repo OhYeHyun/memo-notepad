@@ -2,6 +2,7 @@ package com.yehyun.memo.notepad.controller;
 
 import com.yehyun.memo.notepad.domain.memo.Memo;
 import com.yehyun.memo.notepad.domain.memo.form.MemoSaveForm;
+import com.yehyun.memo.notepad.domain.memo.form.MemoSearchCond;
 import com.yehyun.memo.notepad.domain.memo.form.MemoUpdateForm;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.enums.Role;
@@ -15,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @Controller
@@ -24,10 +27,15 @@ public class MemoController {
     private final MemoService memoService;
 
     @GetMapping
-    public String listMemos(Model model, @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
+    public String listMemos(@ModelAttribute("memoSearch") MemoSearchCond memoSearch,
+                            Model model,
+                            @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
+
+        List<Memo> allMemos = memoService.getAllMemos(memoSearch, jwtPrincipal.getId());
 
         model.addAttribute("memoSaveForm", new MemoSaveForm());
-        model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+        model.addAttribute("memos", allMemos);
+
         model.addAttribute("principalMemberName", jwtPrincipal.getName());
         model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
         model.addAttribute("Role", Role.class);
@@ -43,7 +51,9 @@ public class MemoController {
                              Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+            List<Memo> allMemos = memoService.getAllMemos(null, jwtPrincipal.getId());
+
+            model.addAttribute("memos", allMemos);
             model.addAttribute("principalMemberName", jwtPrincipal.getName());
             model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
             model.addAttribute("Role", Role.class);
@@ -51,7 +61,7 @@ public class MemoController {
             return "memo/memo";
         }
 
-        Memo memo = memoService.saveMemo(form.getContent(), jwtPrincipal.getUsername());
+        Memo memo = memoService.saveMemo(form.getContent(), jwtPrincipal.getId());
         log.info("저장됨 {}", memo.getContent());
 
         return "redirect:/notepad/memos";
@@ -74,9 +84,10 @@ public class MemoController {
                            @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
 
         log.info("수정 {}", id);
+        List<Memo> allMemos = memoService.getAllMemos(null, jwtPrincipal.getId());
 
         model.addAttribute("memoUpdateForm", memoService.findById(id));
-        model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+        model.addAttribute("memos", allMemos);
         model.addAttribute("principalMemberName", jwtPrincipal.getName());
 
         return "memo/editMemo";
@@ -88,8 +99,11 @@ public class MemoController {
                        @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("memos", memoService.getAllMemos(jwtPrincipal.getUsername()));
+            List<Memo> allMemos = memoService.getAllMemos(null, jwtPrincipal.getId());
+
+            model.addAttribute("memos", allMemos);
             model.addAttribute("principalMemberName", jwtPrincipal.getName());
+
             return "memo/editMemo";
         }
 
