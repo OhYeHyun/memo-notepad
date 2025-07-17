@@ -45,6 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 path.startsWith("/login/signup") ||
                 path.startsWith("/oauth2") ||
                 path.startsWith("/css/") ||
-                path.startsWith("/image");
+                path.startsWith("/image") ||
+                path.startsWith("/actuator");
     }
 }

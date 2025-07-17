@@ -58,7 +58,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/notepad-0.0.1-SNAPSHOT.jar"
-          target: "~/memo-notepad"
+          target: "/home/ubuntu/memo-notepad"
+          overwrite: true
 
       # 9. EC2에서 애플리케이션 재시작
       - name: Restart App on EC2
@@ -69,8 +70,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "> deploy.sh 실행"
-            cd ~/memo-notepad
-            ./deploy.sh
+            ./memo-notepad/deploy.sh
 
       # 10. SSH 허용 IP 제거 (보안)
       - name: Remove IP from Security Group
