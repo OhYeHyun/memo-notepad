@@ -8,6 +8,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      RELEASE_DIR: "/home/ubuntu/memo-notepad/releases"
+      DEPLOY_PATH: "/home/ubuntu/memo-notepad/deploy.sh"
+
     steps:
       # 1. 소스코드 체크아웃
       - name: Checkout source
@@ -28,12 +32,20 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 5. GitHub Actions 퍼블릭 IP 획득
+      # 5. JAR 이름 설정
+      - name: Set JAR_NAME with timestamp
+        run: echo "JAR_NAME=notepad-$(date +'%Y%m%d%H%M%S').jar" >> $GITHUB_ENV
+
+      # 6. JAR 파일 이름 수정
+      - name: Rename JAR
+        run: mv build/libs/notepad-0.0.1-SNAPSHOT.jar build/libs/${{ env.JAR_NAME }}
+
+      # 7. GitHub Actions 퍼블릭 IP 획득
       - name: Get GitHub Actions IP
         id: ip
         uses: haythem/public-ip@v1.2
 
-      # 6. AWS 설정
+      # 8. AWS 설정
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -41,7 +53,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 7. EC2 보안 그룹에 SSH 허용 (임시)
+      # 9. EC2 보안 그룹에 SSH 허용 (임시)
       - name: Add IP to Security Group
         run: |
           aws ec2 authorize-security-group-ingress \
@@ -50,18 +62,18 @@ jobs:
             --port 22 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-      # 8. 빌드된 JAR 파일 EC2로 전송
+      # 10. 빌드된 JAR 파일 EC2로 전송
       - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/notepad-0.0.1-SNAPSHOT.jar"
-          target: "/home/ubuntu/memo-notepad"
-          overwrite: true
+          source: "build/libs/${{ env.JAR_NAME }}"
+          target: "${{ env.RELEASE_DIR }}"
+          strip_components: 2
 
-      # 9. EC2에서 애플리케이션 재시작
+      # 11. EC2에서 애플리케이션 재시작
       - name: Restart App on EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -69,10 +81,11 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "> deploy.sh 실행"
-            ./memo-notepad/deploy.sh
+            cd ${{ env.RELEASE_DIR }}
+            LATEST_JAR=$(ls -1tr *.jar | tail -n 1)
+            ${{ env.DEPLOY_PATH }} $LATEST_JAR
 
-      # 10. SSH 허용 IP 제거 (보안)
+      # 12. SSH 허용 IP 제거 (보안)
       - name: Remove IP from Security Group
         if: always()
         run: |
