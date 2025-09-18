@@ -1,0 +1,58 @@
+package com.notepad.entity;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Entity
+@Table(name = "memo")
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Memo {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "memo_id")
+    private Long id;
+
+    @Column(name = "content", columnDefinition = "text", nullable = false)
+    private String content;
+
+    @Column(name = "is_checked")
+    private Boolean isChecked = false;
+
+    @Column(name = "writer_id")
+    private Long writerId;
+
+    @CreatedDate
+    @Column(name = "created_date", updatable = false, nullable = false)
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(name = "updated_date", nullable = false)
+    private LocalDateTime updatedDate;
+
+    public Memo(String content, Long writerId) {
+        this.content = content;
+        this.writerId = writerId;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void toggleCheck() {
+        this.isChecked = !this.isChecked;
+    }
+
+    public void updateWriter(Long writerId) {
+        this.writerId = writerId;
+    }
+}
