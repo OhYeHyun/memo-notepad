@@ -1,13 +1,13 @@
 package com.yehyun.memo.notepad.security.service;
 
-import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.domain.user.User;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.enums.AuthStatus;
 import com.yehyun.memo.notepad.security.enums.Role;
 import com.yehyun.memo.notepad.security.enums.TokenName;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.security.jwt.JwtProvider;
-import com.yehyun.memo.notepad.service.MemberService;
+import com.yehyun.memo.notepad.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class JwtAuthenticationService {
     private final JwtProvider jwtProvider;
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
     private final RedisService redisService;
-    private final MemberService memberService;
+    private final UserService userService;
 
     public AuthStatus authenticateStatus(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.ACCESS_TOKEN);
@@ -78,7 +78,7 @@ public class JwtAuthenticationService {
             return true;
         }
 
-        Member member = memberService.findById(jwtPrincipal.getId());
+        User member = userService.findUser(jwtPrincipal.getId());
         if (member == null) {
             return false;
         }
@@ -98,12 +98,12 @@ public class JwtAuthenticationService {
             return false;
         }
 
-        Member member = memberService.findById(id);
-        if (member == null) {
+        User user = userService.findUser(id);
+        if (user == null) {
             return false;
         }
 
-        JwtPrincipal jwtPrincipal = new JwtPrincipal(member.getId(), member.getName(), member.getRole());
+        JwtPrincipal jwtPrincipal = new JwtPrincipal(user.getId(), user.getName(), user.getRole());
         jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
         return true;
     }

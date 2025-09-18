@@ -1,8 +1,8 @@
 package com.yehyun.memo.notepad.security.service;
 
-import com.yehyun.memo.notepad.domain.member.Member;
-import com.yehyun.memo.notepad.repository.MemberRepository;
-import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.domain.user.User;
+import com.yehyun.memo.notepad.repository.UserRepository;
+import com.yehyun.memo.notepad.security.dto.PrincipalUser;
 import com.yehyun.memo.notepad.security.enums.Role;
 import com.yehyun.memo.notepad.security.oauth.KakaoResponse;
 import com.yehyun.memo.notepad.security.oauth.OAuth2Response;
@@ -18,9 +18,9 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -32,17 +32,17 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
         if (oAuth2Response == null) return null;
 
         String loginId = buildLoginId(oAuth2Response);
-        Optional<Member> optionalMember = memberRepository.findByLoginId(loginId);
+        Optional<User> optionalUser = userRepository.findByLoginId(loginId);
 
-        Member member;
-        if (optionalMember.isEmpty()) {
+        User member;
+        if (optionalUser.isEmpty()) {
             member = createMemberFromOAuth2Response(oAuth2Response);
         } else {
-            member = optionalMember.get();
-            updateMember(member, oAuth2Response);
+            member = optionalUser.get();
+            updateUser(member, oAuth2Response);
         }
 
-        return new PrincipalMember(member, oAuth2User.getAttributes());
+        return new PrincipalUser(member, oAuth2User.getAttributes());
     }
 
     private OAuth2Response extractOAuth2Response(String registrationId, OAuth2User oAuth2User) {
@@ -52,8 +52,8 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
         return null;
     }
 
-    private Member createMemberFromOAuth2Response(OAuth2Response oAuth2Response) {
-        Member member = Member.ofOAuth(
+    private User createMemberFromOAuth2Response(OAuth2Response oAuth2Response) {
+        User user = User.ofOAuth(
                 oAuth2Response.getName(),
                 buildLoginId(oAuth2Response),
                 UUID.randomUUID().toString(),
@@ -62,16 +62,14 @@ public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
                 oAuth2Response.getProviderId()
         );
 
-        return memberRepository.save(member);
+        return userRepository.save(user);
     }
 
     private String buildLoginId(OAuth2Response oAuth2Response) {
         return oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
     }
 
-    private void updateMember(Member member, OAuth2Response response) {
-        member.setName(response.getName());
-        member.setProvider(response.getProvider());
-        member.setProviderId(response.getProviderId());
+    private void updateUser(User user, OAuth2Response response) {
+        user.updateProvider(response);
     }
 }

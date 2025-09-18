@@ -1,7 +1,7 @@
 package com.yehyun.memo.notepad.security.jwt;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
-import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.dto.PrincipalUser;
 import com.yehyun.memo.notepad.security.enums.Role;
 import com.yehyun.memo.notepad.security.enums.TokenName;
 import com.yehyun.memo.notepad.security.service.RedisService;
@@ -71,7 +71,7 @@ public class JwtLoginSuccessProcessor {
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
-    public JwtPrincipal createJwtPrincipal(PrincipalMember principalMember) {
+    public JwtPrincipal createJwtPrincipal(PrincipalUser principalMember) {
         return new JwtPrincipal(
                 principalMember.getId(),
                 principalMember.getName(),

@@ -4,8 +4,8 @@ import com.yehyun.memo.notepad.security.handler.CustomAuthenticationFailureHandl
 import com.yehyun.memo.notepad.security.handler.CustomAuthenticationSuccessHandler;
 import com.yehyun.memo.notepad.security.handler.CustomLogoutSuccessHandler;
 import com.yehyun.memo.notepad.security.jwt.JwtFilter;
-import com.yehyun.memo.notepad.security.service.CustomMemberDetailsService;
-import com.yehyun.memo.notepad.security.service.CustomOAuth2MemberService;
+import com.yehyun.memo.notepad.security.service.CustomUserDetailsService;
+import com.yehyun.memo.notepad.security.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +30,8 @@ public class SecurityConfig {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
-    private final CustomMemberDetailsService customMemberDetailsService;
-    private final CustomOAuth2MemberService customOAuth2MemberService;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -41,7 +41,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customMemberDetailsService);
+        provider.setUserDetailsService(customUserDetailsService);
         provider.setPasswordEncoder(bCryptPasswordEncoder());
         return new ProviderManager(provider);
     }
@@ -84,7 +84,7 @@ public class SecurityConfig {
         http
                 .oauth2Login((oauth2) -> oauth2
                         .loginPage("/login")
-                        .userInfoEndpoint((userInfo ) -> userInfo.userService(customOAuth2MemberService))
+                        .userInfoEndpoint((userInfo ) -> userInfo.userService(customOAuth2UserService))
                         .successHandler(customAuthenticationSuccessHandler)
                         .failureHandler(customAuthenticationFailureHandler)
                 );

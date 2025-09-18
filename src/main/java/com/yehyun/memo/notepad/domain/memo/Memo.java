@@ -1,18 +1,20 @@
 package com.yehyun.memo.notepad.domain.memo;
 
-import com.yehyun.memo.notepad.domain.member.Member;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "memo")
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Memo {
 
     @Id
@@ -20,30 +22,26 @@ public class Memo {
     @Column(name = "memo_id")
     private Long id;
 
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition = "text", nullable = false)
     private String content;
-    @Column(name = "is_checked")
-    private boolean isChecked;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Column(name = "is_checked")
+    private Boolean isChecked = false;
+
+    @Column(name = "writer_id")
+    private Long writerId;
 
     @CreatedDate
-    @Column(name = "created_date", updatable = false)
+    @Column(name = "created_date", updatable = false, nullable = false)
     private LocalDateTime createdDate;
 
     @LastModifiedDate
-    @Column(name = "updated_date")
+    @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate;
 
-    public Memo() {
-    }
-
-    public Memo(String content, Member member) {
+    public Memo(String content, Long writerId) {
         this.content = content;
-        this.isChecked = false;
-        this.member = member;
+        this.writerId = writerId;
     }
 
     public void updateContent(String content) {
@@ -54,7 +52,7 @@ public class Memo {
         this.isChecked = !this.isChecked;
     }
 
-    public void updateWriter(Member member) {
-        this.member = member;
+    public void updateWriter(Long writerId) {
+        this.writerId = writerId;
     }
 }

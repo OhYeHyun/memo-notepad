@@ -1,7 +1,7 @@
 package com.yehyun.memo.notepad.security.handler;
 
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
-import com.yehyun.memo.notepad.security.dto.PrincipalMember;
+import com.yehyun.memo.notepad.security.dto.PrincipalUser;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,8 +20,8 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        PrincipalMember principalMember = (PrincipalMember) authentication.getPrincipal();
-        JwtPrincipal jwtPrincipal = jwtLoginSuccessProcessor.createJwtPrincipal(principalMember);
+        PrincipalUser principalUser = (PrincipalUser) authentication.getPrincipal();
+        JwtPrincipal jwtPrincipal = jwtLoginSuccessProcessor.createJwtPrincipal(principalUser);
 
         jwtLoginSuccessProcessor.reissueTokensAndAuthenticate(request, response, jwtPrincipal);
         getRedirectStrategy().sendRedirect(request, response, "/");

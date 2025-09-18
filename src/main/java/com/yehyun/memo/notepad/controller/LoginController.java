@@ -3,8 +3,8 @@ package com.yehyun.memo.notepad.controller;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.jwt.JwtLoginSuccessProcessor;
 import com.yehyun.memo.notepad.service.GuestService;
-import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
-import com.yehyun.memo.notepad.service.MemberService;
+import com.yehyun.memo.notepad.service.dto.UserSaveForm;
+import com.yehyun.memo.notepad.service.UserService;
 import com.yehyun.memo.notepad.validator.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/login")
 public class LoginController {
 
-    private final MemberService memberService;
+    private final UserService userService;
     private final GuestService guestLoginService;
     private final JwtLoginSuccessProcessor jwtLoginSuccessProcessor;
 
@@ -32,12 +32,12 @@ public class LoginController {
 
     @GetMapping("/signup")
     public String saveForm(Model model) {
-        model.addAttribute("memberSaveForm", new MemberSaveForm());
+        model.addAttribute("memberSaveForm", new UserSaveForm());
         return "login/signup";
     }
 
     @PostMapping("/signup")
-    public String save(@Valid @ModelAttribute MemberSaveForm form,
+    public String save(@Valid @ModelAttribute UserSaveForm form,
                        BindingResult bindingResult,
                        @RequestParam(defaultValue = "/notepad/memos") String redirectURL,
                        HttpServletRequest request,
@@ -48,7 +48,7 @@ public class LoginController {
         }
 
         try {
-            JwtPrincipal jwtPrincipal = memberService.createGuestMember(form);
+            JwtPrincipal jwtPrincipal = userService.createUser(form);
             jwtLoginSuccessProcessor.reissueTokensAndAuthenticate(request, response, jwtPrincipal);
 
             return "redirect:" + redirectURL;
@@ -61,7 +61,7 @@ public class LoginController {
 
     @GetMapping("/no")
     public String noLogin(HttpServletRequest request, HttpServletResponse response) {
-        JwtPrincipal jwtPrincipal = guestLoginService.createGuestMember();
+        JwtPrincipal jwtPrincipal = guestLoginService.createGuest();
         jwtLoginSuccessProcessor.reissueTokensAndAuthenticate(request, response, jwtPrincipal);
 
         return "redirect:/notepad/memos";

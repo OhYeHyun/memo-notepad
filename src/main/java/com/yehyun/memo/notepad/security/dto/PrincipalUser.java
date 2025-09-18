@@ -1,6 +1,6 @@
 package com.yehyun.memo.notepad.security.dto;
 
-import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.domain.user.User;
 import com.yehyun.memo.notepad.security.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-public class PrincipalMember implements UserDetails, OAuth2User {
+public class PrincipalUser implements UserDetails, OAuth2User {
 
-    private final Member member;
+    private final User user;
     private final Map<String, Object> attributes;
 
-    public PrincipalMember(Member member) {
-        this.member = member;
+    public PrincipalUser(User user) {
+        this.user = user;
         this.attributes = Map.of();
     }
 
-    public PrincipalMember(Member member, Map<String, Object> attributes) {
-        this.member = member;
+    public PrincipalUser(User user, Map<String, Object> attributes) {
+        this.user = user;
         this.attributes = attributes;
     }
 
@@ -34,33 +34,33 @@ public class PrincipalMember implements UserDetails, OAuth2User {
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(() -> member.getRole().name());
+        collection.add(() -> user.getRole().name());
 
         return collection;
     }
 
     public Long getId() {
-        return member.getId();
+        return user.getId();
     }
 
     // OAuth
     @Override
     public String getName() {
-        return member.getName();
+        return user.getName();
     }
 
     // UserDetails
     @Override
     public String getUsername() {
-        return member.getName();
+        return user.getName();
     }
 
     @Override
     public String getPassword() {
-        return member.getPassword() != null ? member.getPassword() : "";
+        return user.getPassword() != null ? user.getPassword() : "";
     }
 
     public Role getRole() {
-        return member.getRole();
+        return user.getRole();
     }
 }

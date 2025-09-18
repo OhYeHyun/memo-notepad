@@ -1,7 +1,7 @@
 package com.yehyun.memo.notepad.service;
 
-import com.yehyun.memo.notepad.domain.member.Member;
-import com.yehyun.memo.notepad.repository.MemberRepository;
+import com.yehyun.memo.notepad.domain.user.User;
+import com.yehyun.memo.notepad.repository.UserRepository;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.enums.Role;
 import jakarta.transaction.Transactional;
@@ -12,36 +12,36 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class GuestService {
 
     private final MemoService memoService;
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
-    public JwtPrincipal createGuestMember() {
-        Member guestMember = Member.ofLocal(
+    @Transactional
+    public JwtPrincipal createGuest() {
+        User guest = User.ofLocal(
                 "guest",
                 "guest_" + UUID.randomUUID(),
                 "",
                 Role.ROLE_GUEST
         );
-        memberRepository.save(guestMember);
+        userRepository.save(guest);
 
-        return createGuestPrincipal(guestMember);
+        return createGuestPrincipal(guest);
     }
 
-    private JwtPrincipal createGuestPrincipal(Member guest) {
+    private JwtPrincipal createGuestPrincipal(User guest) {
         return new JwtPrincipal(guest.getId(), guest.getName(), guest.getRole());
     }
 
-    public void transferGuestMemos(JwtPrincipal existingMember, Long writerId) {
-        if (isGuest(existingMember)) {
-            memoService.updateWriterId(existingMember.getId(), writerId);
+    public void transferGuestMemos(JwtPrincipal existingUser, Long writerId) {
+        if (isGuest(existingUser)) {
+            memoService.updateWriter(existingUser.getId(), writerId);
         }
     }
 
-    private boolean isGuest(JwtPrincipal member) {
-        return member != null && Role.ROLE_GUEST == member.getRole();
+    private boolean isGuest(JwtPrincipal user) {
+        return user != null && Role.ROLE_GUEST == user.getRole();
     }
 }
 

@@ -1,55 +1,54 @@
 package com.yehyun.memo.notepad.service;
 
-import com.yehyun.memo.notepad.domain.member.Member;
+import com.yehyun.memo.notepad.domain.user.User;
 import com.yehyun.memo.notepad.security.dto.JwtPrincipal;
 import com.yehyun.memo.notepad.security.enums.Role;
-import com.yehyun.memo.notepad.service.dto.MemberSaveForm;
-import com.yehyun.memo.notepad.repository.MemberRepository;
+import com.yehyun.memo.notepad.service.dto.UserSaveForm;
+import com.yehyun.memo.notepad.repository.UserRepository;
 import com.yehyun.memo.notepad.validator.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class MemberService {
+public class UserService {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
-    public JwtPrincipal createGuestMember(MemberSaveForm form) {
-        validateMemberSaveForm(form);
+    @Transactional
+    public JwtPrincipal createUser(UserSaveForm form) {
+        validateUserSaveForm(form);
 
-        Member member = Member.ofLocal(
+        User guest = User.ofLocal(
                 form.getName(),
                 form.getLoginId(),
                 new BCryptPasswordEncoder().encode(form.getPassword()),
                 Role.ROLE_USER
         );
-        memberRepository.save(member);
+        userRepository.save(guest);
 
-        return createMemberPrinciple(member);
+        return createMemberPrinciple(guest);
     }
 
-    private JwtPrincipal createMemberPrinciple(Member member) {
-        return new JwtPrincipal(member.getId(), member.getName(), member.getRole());
+    private JwtPrincipal createMemberPrinciple(User user) {
+        return new JwtPrincipal(user.getId(), user.getName(), user.getRole());
     }
 
-    public Member findById(Long id) {
-        return memberRepository.findById(id).orElseThrow();
+    @Transactional(readOnly = true)
+    public User findUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow();
     }
 
-    private void validateMemberSaveForm(MemberSaveForm form) {
+    private void validateUserSaveForm(UserSaveForm form) {
         isDuplicatedLoginId(form.getLoginId());
         validateFormatLoginId(form.getLoginId());
         validateFormatPassword(form.getPassword());
     }
 
     private void isDuplicatedLoginId(String loginId) {
-        if (memberRepository.findByLoginId(loginId).isPresent()) {
+        if (userRepository.existsByLoginId(loginId)) {
             throw new ValidationException("loginId", "error.loginId.duplicated");
         }
     }
