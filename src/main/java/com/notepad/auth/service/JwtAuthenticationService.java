@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class JwtAuthenticationService {
@@ -78,8 +80,8 @@ public class JwtAuthenticationService {
             return true;
         }
 
-        User member = userService.findUser(jwtPrincipal.getId());
-        if (member == null) {
+        Optional<User> user = userService.findUser(jwtPrincipal.getId());
+        if (user.isEmpty()) {
             return false;
         }
 
@@ -98,12 +100,12 @@ public class JwtAuthenticationService {
             return false;
         }
 
-        User user = userService.findUser(id);
-        if (user == null) {
+        Optional<User> user = userService.findUser(id);
+        if (user.isEmpty()) {
             return false;
         }
 
-        JwtPrincipal jwtPrincipal = new JwtPrincipal(user.getId(), user.getName(), user.getRole());
+        JwtPrincipal jwtPrincipal = new JwtPrincipal(user.get().getId(), user.get().getName(), user.get().getRole());
         jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
         return true;
     }

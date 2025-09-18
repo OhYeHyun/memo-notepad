@@ -1,17 +1,21 @@
 package com.notepad.memo.service;
 
+import com.notepad.dto.request.memo.MemoCreateRequest;
+import com.notepad.dto.response.memo.MemoClientResponse;
 import com.notepad.entity.User;
 import com.notepad.entity.Memo;
 import com.notepad.dto.request.memo.MemoSearchRequest;
 import com.notepad.user.repository.UserRepository;
 import com.notepad.memo.repository.MemoRepository;
 import com.notepad.memo.repository.impl.MemoRepositorySupport;
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.notepad.dto.response.memo.MemoClientResponse.ofMemo;
+import static com.notepad.dto.response.memo.MemoClientResponse.ofMemos;
 
 @Service
 @RequiredArgsConstructor
@@ -22,25 +26,44 @@ public class MemoService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public List<Memo> getAllMemos(@Nullable MemoSearchRequest cond, Long userId) {
-        if (cond == null) {
-            return memoRepository.findMemos(userId);
-        }
-        return memoRepositorySupport.searchMemos(cond, userId);
+    public List<MemoClientResponse> getMemoList(Long userId, MemoSearchRequest request) {
+        List<Memo> memoList = memoRepositorySupport.searchMemos(request, userId);
+
+        return ofMemos(memoList);
     }
 
     @Transactional
-    public Memo saveMemo(String content, Long userId) {
-        User writer = userRepository.findById(userId).orElseThrow();
-        Memo memo = new Memo(content, writer.getId());
+    public MemoClientResponse saveMemo(Long userId, MemoCreateRequest request) {
+        userRepository.findById(userId).orElseThrow();
 
-        return memoRepository.save(memo);
+        Memo memo = memoRepository.save(
+                Memo.builder()
+                        .content(request.content())
+                        .writerId(userId)
+                        .build()
+        );
+
+        return ofMemo(memo);
     }
 
     @Transactional
-    public void toggleMemo(Long memoId) {
+    public MemoClientResponse toggleMemo(Long userId, Long memoId) {
+        memoRepository.findById(userId).orElseThrow();
+
         Memo memo = memoRepository.findById(memoId).orElseThrow();
         memo.toggleCheck();
+
+        return ofMemo(memo);
+    }
+
+    @Transactional
+    public MemoClientResponse updateMemo(Long userId, Long memoId, MemoCreateRequest request) {
+        userRepository.findById(userId).orElseThrow();
+
+        Memo memo = memoRepository.findById(memoId).orElseThrow();
+        memo.updateContent(request.content());
+
+        return ofMemo(memo);
     }
 
     @Transactional
@@ -50,21 +73,10 @@ public class MemoService {
     }
 
     @Transactional
-    public void updateMemo(Long id, String content) {
-        Memo memo = memoRepository.findById(id).orElseThrow();
-        memo.updateContent(content);
-    }
-
-    @Transactional
     public void updateWriter(Long guestId, Long userId) {
         List<Memo> guestMemoList = memoRepository.findMemos(guestId);
         User user = userRepository.findById(userId).orElseThrow();
 
         guestMemoList.forEach(memo -> memo.updateWriter(user.getId()));
-    }
-
-    @Transactional(readOnly = true)
-    public Memo findById(Long memoId) {
-        return memoRepository.findById(memoId).orElseThrow();
     }
 }

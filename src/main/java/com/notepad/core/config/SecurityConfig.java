@@ -2,106 +2,106 @@ package com.notepad.core.config;
 
 import com.notepad.auth.handler.CustomAuthenticationFailureHandler;
 import com.notepad.auth.handler.CustomAuthenticationSuccessHandler;
-import com.notepad.auth.handler.CustomLogoutSuccessHandler;
 import com.notepad.auth.jwt.JwtFilter;
 import com.notepad.auth.service.CustomUserDetailsService;
 import com.notepad.auth.service.CustomOAuth2UserService;
+import com.notepad.core.config.component.CorsConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private final CorsConfig corsConfig;
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
-
-    private final CustomUserDetailsService customUserDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager() {
+    public AuthenticationManager authenticationManager(
+            PasswordEncoder passwordEncoder,
+            CustomUserDetailsService userDetailsService
+    ) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customUserDetailsService);
-        provider.setPasswordEncoder(bCryptPasswordEncoder());
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(provider);
     }
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
-                .csrf((auth) -> auth.disable());
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
 
-        http
-                .httpBasic((auth) -> auth.disable());
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-        http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
+                                // 정적 리소스, SPA
                                 "/",
-                                "/oauth2/**",
+                                "/app/**",
+                                "/assets/**",
                                 "/image/**",
                                 "/css/**",
-                                "/login",
-                                "/login/signup",
-                                "/login/no",
-                                "/actuator/**"
+                                "/actuator/**",
+
+                                // 로그인
+                                "/api/auth/guest", "/api/auth/login", "/api/auth/logout",
+                                "/oauth2/**",
+                                "/login/oauth2/**"
                         )
                         .permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
-                );
+                )
 
-        http
-                .formLogin((auth) -> auth
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("loginId")
-                        .successHandler(customAuthenticationSuccessHandler)
-                        .failureHandler(customAuthenticationFailureHandler)
-                        .permitAll()
-                );
-
-        http
                 .oauth2Login((oauth2) -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint((userInfo ) -> userInfo.userService(customOAuth2UserService))
                         .successHandler(customAuthenticationSuccessHandler)
                         .failureHandler(customAuthenticationFailureHandler)
-                );
+                )
 
-        http
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessHandler(customLogoutSuccessHandler)
-                );
-
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        http
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(corsConfig.getAllowOrigins());
+        configuration.setAllowedHeaders(corsConfig.getAllowHeaders());
+        configuration.setAllowedMethods(corsConfig.getAllowMethods());
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }

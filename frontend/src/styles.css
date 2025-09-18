@@ -1,0 +1,266 @@
+/* ---- Theme ---- */
+:root{
+    --bg:#0b1220;          /* 앱 배경 (다크) */
+    --card:#101827;        /* 카드/패널 */
+    --muted:#9aa3b2;       /* 보조 텍스트 */
+    --text:#e5e7eb;        /* 본문 텍스트 */
+    --line:rgba(255,255,255,.08);
+    --brand:#60a5fa;       /* 파란 포인트 */
+    --brand-strong:#3b82f6;
+    --green:#34d399;       /* 성공 */
+    --red:#ef4444;         /* 위험 */
+    --shadow:0 20px 50px rgba(0,0,0,.35), 0 2px 10px rgba(0,0,0,.25);
+}
+
+*{ box-sizing:border-box }
+html,body,#root{ height:100% }
+body{
+    margin:0;
+    background:
+            radial-gradient(800px 400px at 20% -10%, rgba(96,165,250,.08), transparent 60%),
+            radial-gradient(1000px 600px at 120% 10%, rgba(52,211,153,.06), transparent 60%),
+            var(--bg);
+    color:var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+}
+
+/* ---- Utilities ---- */
+.row{ display:flex; align-items:center; gap:10px; }
+.row.between{ justify-content:space-between }
+.column{ display:flex; flex-direction:column; gap:12px; }
+.gap{ gap:10px }
+.mt{ margin-top:12px }
+.flex1{ flex:1 }
+.muted{ color:var(--muted) }
+
+/* ---- Buttons & Inputs ---- */
+.btn{
+    appearance:none; border:none; border-radius:10px;
+    padding:10px 14px; font-weight:700; cursor:pointer;
+    background:#1f2937; color:var(--text); box-shadow: var(--shadow);
+    transition: transform .06s ease, background .15s ease, opacity .2s ease;
+}
+.btn:hover{ transform: translateY(-1px); }
+.btn:active{ transform: translateY(0); }
+.btn.primary{ background: linear-gradient(180deg, var(--brand), var(--brand-strong)); color:#fff; }
+.btn.ghost{ background:transparent; border:1px solid var(--line); }
+.btn.success{ background: linear-gradient(180deg, #34d399, #10b981); color:#063; color:#062a22; }
+.btn.small{ padding:6px 10px; font-size:.86rem }
+.btn.danger{ background:var(--red); color:#fff }
+
+.input{
+    width:100%; height:42px; padding:0 12px;
+    border:1px solid var(--line); border-radius:10px;
+    background:#0f1523; color:var(--text);
+    outline:none; transition: box-shadow .15s ease, border-color .15s ease;
+}
+.input:focus{ border-color:var(--brand); box-shadow:0 0 0 4px rgba(96,165,250,.18); }
+
+/* ---- Login screen ---- */
+.login-hero{
+    min-height:100%;
+    display:grid; place-items:center;
+    padding:24px;
+}
+.login-card{
+    width:min(640px, 92vw);
+    background:linear-gradient(180deg, #0f172a, #0b1324);
+    border:1px solid var(--line);
+    border-radius:18px; padding:26px;
+    box-shadow: var(--shadow);
+}
+.login-card h1{ margin:0 0 6px; font-size:34px; letter-spacing:.3px }
+.login-card p{ margin:0 0 20px; color:var(--muted) }
+.login-card .btns{ display:flex; gap:10px; flex-wrap:wrap }
+.login-card .muted{ display:block; margin-top:12px }
+
+/* ---- App shell (로그인 후) ---- */
+.shell{ min-height:100%; display:flex; flex-direction:column; }
+.topbar{
+    height:58px; padding:0 16px;
+    display:flex; align-items:center; gap:12px;
+    border-bottom:1px solid var(--line);
+    background:rgba(0,0,0,.15); backdrop-filter: blur(6px);
+    position:sticky; top:0; z-index:10;
+}
+.brand{ font-weight:900; letter-spacing:.3px }
+.spacer{ flex:1 }
+.who{ display:flex; align-items:center; gap:8px }
+.pill{
+    padding:6px 10px; border-radius:999px;
+    background:rgba(255,255,255,.06); border:1px solid var(--line);
+    font-size:.85rem;
+}
+
+.content{
+    width:min(960px, 94vw);
+    margin:18px auto 60px; display:flex; flex-direction:column; gap:14px;
+}
+.panel{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:14px; box-shadow: var(--shadow);
+}
+
+/* --- 검색바 --- */
+.searchbar {
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:10px; border-radius:14px;
+    background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+}
+.search-left { display:flex; gap:10px; flex:1; }
+.search-right { display:flex; gap:8px; }
+
+.field.with-icon { position:relative; flex:1; }
+.field.with-icon .input { padding-left:34px; }
+.field.with-icon .icon {
+    position:absolute; left:10px; top:50%; transform:translateY(-50%);
+    opacity:.7; pointer-events:none; font-size:14px;
+}
+
+/* ---- Memo list ---- */
+.list{ list-style:none; padding:0; margin:10px 0 0; display:flex; flex-direction:column; gap:10px }
+.item { display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; }
+.item:hover{ filter: brightness(1.1) }
+
+.item .text { color:#e5e7eb; }
+
+.item.done .text { text-decoration: line-through; color:#9ca3af; }
+.box { fill:transparent; stroke:#a3b1c6; stroke-width:2; }
+.tick { fill:none; stroke:#6ea8fe; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; opacity:0; }
+.item .check[aria-pressed="true"] .tick { opacity:1; }
+
+/* --- 게스트 CTA --- */
+.cta {
+    margin:10px auto 0; max-width:1100px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:10px 14px; border-radius:12px;
+    background: rgba(255,255,255,.04); border:1px dashed rgba(255,255,255,.12);
+}
+.cta-actions { display:flex; gap:8px; }
+
+/* ---- Modal ---- */
+.modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.45);
+    display:grid; place-items:center; z-index:50;
+}
+.modal{
+    width:420px; max-width:92vw;
+    background:var(--card); color:var(--text);
+    border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow: var(--shadow);
+}
+.form-col{ display:flex; flex-direction:column; gap:12px }
+.error{ color:#ff8b8b; font-size:.92rem }
+
+/* ---- Responsive ---- */
+@media (max-width: 560px){
+    .topbar{ height:54px }
+    .login-card{ padding:20px }
+    .content{ gap:10px }
+}
+/* ===== POLISH PACK (append only) ===== */
+
+/* 더 넓은 작업폭 + 여백 강화 */
+.content{
+    width:min(1120px, 94vw);
+    margin:28px auto 80px;
+    gap:18px;
+}
+
+/* 상단바 더 또렷하게 */
+.topbar{
+    height:64px;
+    padding:0 24px;
+    background: linear-gradient(180deg, rgba(15,23,42,.70), rgba(11,18,32,.55));
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+.brand{ font-size:20px; letter-spacing:.4px }
+
+/* 패널을 카드처럼 */
+.panel{
+    border-radius:18px;
+    padding:18px;
+    background:
+            radial-gradient(600px 300px at 90% -20%, rgba(96,165,250,.06), transparent 60%),
+            radial-gradient(500px 300px at -10% 120%, rgba(52,211,153,.05), transparent 60%),
+            var(--card);
+    border:1px solid rgba(255,255,255,.09);
+    box-shadow:
+            0 26px 60px rgba(0,0,0,.35),
+            inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+/* 폼 요소: 더 큰 히트영역 + 라운드 */
+.input{
+    height:48px;
+    border-radius:12px;
+    background:#0b1220;
+}
+.input::placeholder{ color:#8b93a6 }
+.row.gap{ gap:12px }
+
+/* 버튼 톤 & 사이즈 */
+.btn{
+    border-radius:12px;
+    padding:12px 16px;
+    background: #111a2b;
+    border:1px solid rgba(255,255,255,.06);
+}
+.btn.primary{
+    background: linear-gradient(180deg, #60a5fa, #3b82f6);
+    box-shadow: 0 10px 22px rgba(59,130,246,.30);
+}
+.btn.primary:hover{ filter: brightness(1.06) }
+.btn.ghost{ background: rgba(255,255,255,.03) }
+
+/* 리스트 아이템: 행간/그림자 */
+.item{
+    padding:12px 14px;
+    border-radius:14px;
+    border:1px dashed rgba(255,255,255,.10);
+    background: rgba(255,255,255,.02);
+    box-shadow: 0 10px 26px rgba(0,0,0,.20);
+}
+
+/* 체크 버튼을 또렷하게 */
+.checkbox2 {
+    position: relative; width:24px; height:24px; min-width:24px;
+    border:none; background:transparent; cursor:pointer;
+    display:grid; place-items:center; margin-right:6px;
+}
+.checkbox2 .box {
+    width:100%; height:100%; border-radius:6px;
+    border:2px solid #9aa7bd; background:transparent;
+    transition: all .15s ease;
+}
+.checkbox2 .tick {
+    position:absolute; width:20px; height:20px; opacity:0; transform:scale(.9);
+}
+.checkbox2 .tick path {
+    fill:none; stroke:#6ea8fe; stroke-width:3; stroke-linecap:round; stroke-linejoin:round;
+}
+.checkbox2.on .box {
+    background: rgba(110,168,254,.12); border-color:#6ea8fe;
+    box-shadow: 0 0 0 3px rgba(110,168,254,.15);
+}
+.checkbox2.on .tick { opacity:1; transform:scale(1); transition: all .15s ease; }
+
+/* 로그인 카드 여백/타이포 */
+.login-card{
+    padding:28px 28px 24px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.45);
+}
+.login-card h1{ font-size:36px }
+.login-card .btns{ gap:12px }
+
+/* 폼 그룹 정렬 */
+.panel .row.gap { align-items: stretch; }
+.panel .row.gap > .input { flex: 1 }
+.panel .row.gap > .btn { height: 48px }
+
+/* 리스트 카드 상단 여백 */
+.panel + .panel { margin-top: 14px }
+
+/* 빈 상태 텍스트 톤 */
+.panel .muted { color: #a7b0c3 }
+

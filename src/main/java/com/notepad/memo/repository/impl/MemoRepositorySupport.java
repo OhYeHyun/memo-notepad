@@ -1,9 +1,9 @@
 package com.notepad.memo.repository.impl;
 
+import com.notepad.entity.QMemo;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.notepad.entity.Memo;
-import com.yehyun.memo.notepad.domain.memo.QMemo;
 import com.notepad.dto.request.memo.MemoSearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -16,23 +16,23 @@ public class MemoRepositorySupport {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<Memo> searchMemos(MemoSearchRequest cond, Long memberId) {
+    public List<Memo> searchMemos(MemoSearchRequest request, Long memberId) {
         QMemo memo = QMemo.memo;
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(memo.writerId.eq(memberId));
 
-        if (cond.getContent() != null && !cond.getContent().isEmpty()) {
-            builder.and(memo.content.contains(cond.getContent()));
+        if (request.content() != null && !request.content().isEmpty()) {
+            builder.and(memo.content.contains(request.content()));
         }
 
-        if (cond.getCreatedDate() != null) {
-            builder.and(memo.createdDate.goe(cond.getCreatedDate()));
+        if (request.createdAt() != null) {
+            builder.and(memo.createdAt.goe(request.createdAt()));
         }
 
         return queryFactory.selectFrom(memo)
                 .where(builder)
-                .orderBy(memo.createdDate.desc())
+                .orderBy(memo.createdAt.desc())
                 .fetch();
     }
 }

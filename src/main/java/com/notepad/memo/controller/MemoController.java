@@ -1,113 +1,63 @@
 package com.notepad.memo.controller;
 
-import com.notepad.entity.Memo;
-import com.notepad.dto.request.memo.MemoSaveRequest;
+import com.notepad.dto.response.memo.MemoClientResponse;
 import com.notepad.dto.request.memo.MemoSearchRequest;
-import com.notepad.dto.request.memo.MemoUpdateRequest;
+import com.notepad.dto.request.memo.MemoCreateRequest;
 import com.notepad.auth.dto.JwtPrincipal;
-import com.notepad.global.enums.Role;
 import com.notepad.memo.service.MemoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
+@RestController
+@RequestMapping("/api/memos")
 @RequiredArgsConstructor
-@Controller
-@RequestMapping("/notepad/memos")
 public class MemoController {
 
     private final MemoService memoService;
 
     @GetMapping
-    public String listMemos(@ModelAttribute("memoSearch") MemoSearchRequest memoSearch,
-                            Model model,
-                            @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
-
-        List<Memo> allMemos = memoService.getAllMemos(memoSearch, jwtPrincipal.getId());
-
-        model.addAttribute("memoSaveForm", new MemoSaveRequest());
-        model.addAttribute("memos", allMemos);
-
-        model.addAttribute("principalMemberName", jwtPrincipal.getName());
-        model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
-        model.addAttribute("Role", Role.class);
-
-        log.info("memoSaveForm: {}", model.getAttribute("memoSaveForm"));
-
-        return "memo/memo";
+    public ResponseEntity<List<MemoClientResponse>> listMemos(
+            @AuthenticationPrincipal JwtPrincipal user,
+            @ModelAttribute MemoSearchRequest searchRequest
+    ) {
+        return ResponseEntity.ok(memoService.getMemoList(user.getId(), searchRequest));
     }
 
     @PostMapping
-    public String createMemo(@Valid @ModelAttribute MemoSaveRequest form, BindingResult bindingResult,
-                             @AuthenticationPrincipal JwtPrincipal jwtPrincipal,
-                             Model model) {
-
-        if (bindingResult.hasErrors()) {
-            List<Memo> allMemos = memoService.getAllMemos(null, jwtPrincipal.getId());
-
-            model.addAttribute("memos", allMemos);
-            model.addAttribute("principalMemberName", jwtPrincipal.getName());
-            model.addAttribute("principalMemberRole", jwtPrincipal.getRole());
-            model.addAttribute("Role", Role.class);
-
-            return "memo/memo";
-        }
-
-        Memo memo = memoService.saveMemo(form.getContent(), jwtPrincipal.getId());
-        log.info("저장됨 {}", memo.getContent());
-
-        return "redirect:/notepad/memos";
+    public ResponseEntity<MemoClientResponse> createMemo(
+            @AuthenticationPrincipal JwtPrincipal user,
+            @Valid @RequestBody MemoCreateRequest createRequest
+    ) {
+        return ResponseEntity.ok(memoService.saveMemo(user.getId(), createRequest));
     }
 
-    @PostMapping("/{id}/toggle")
-    public String toggleCheck(@PathVariable("id") Long id) {
-        memoService.toggleMemo(id);
-        return "redirect:/notepad/memos";
+    @PatchMapping("/{memoId}")
+    public ResponseEntity<MemoClientResponse> updateMemo(
+            @AuthenticationPrincipal JwtPrincipal user,
+            @PathVariable Long memoId,
+            @Valid @RequestBody MemoCreateRequest createRequest
+    ) {
+        return ResponseEntity.ok(memoService.updateMemo(user.getId(), memoId, createRequest));
     }
 
-    @PostMapping("/{id}/delete")
-    public String deleteMemo(@PathVariable("id") Long id) {
-        memoService.deleteMemo(id);
-        return "redirect:/notepad/memos";
+    @DeleteMapping("/{memoId}")
+    public ResponseEntity<Void> deleteMemo(
+            @PathVariable("memoId") Long memoId
+    ) {
+        memoService.deleteMemo(memoId);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/edit")
-    public String editForm(@PathVariable Long id, Model model,
-                           @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
-
-        log.info("수정 {}", id);
-        List<Memo> allMemos = memoService.getAllMemos(null, jwtPrincipal.getId());
-
-        model.addAttribute("memoUpdateForm", memoService.findById(id));
-        model.addAttribute("memos", allMemos);
-        model.addAttribute("principalMemberName", jwtPrincipal.getName());
-
-        return "memo/editMemo";
-    }
-
-    @PostMapping("/{id}/edit")
-    public String edit(@Valid @ModelAttribute MemoUpdateRequest form,
-                       BindingResult bindingResult, Model model,
-                       @AuthenticationPrincipal JwtPrincipal jwtPrincipal) {
-
-        if (bindingResult.hasErrors()) {
-            List<Memo> allMemos = memoService.getAllMemos(null, jwtPrincipal.getId());
-
-            model.addAttribute("memos", allMemos);
-            model.addAttribute("principalMemberName", jwtPrincipal.getName());
-
-            return "memo/editMemo";
-        }
-
-        memoService.updateMemo(form.getId(), form.getContent());
-        return "redirect:/notepad/memos";
+    @PatchMapping("/{memoId}/check")
+    public ResponseEntity<MemoClientResponse> toggleCheck(
+            @AuthenticationPrincipal JwtPrincipal user,
+            @PathVariable("memoId") Long memoId
+    ) {
+        return ResponseEntity.ok(memoService.toggleMemo(user.getId(), memoId));
     }
 }

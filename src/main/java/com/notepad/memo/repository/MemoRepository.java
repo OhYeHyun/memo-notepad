@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface MemoRepository extends JpaRepository<Memo, Long> {
 
-    @Query("select m from Memo m where m.writerId = :userId order by m.createdDate")
+    @Query("select m from Memo m where m.writerId = :userId order by m.createdAt")
     List<Memo> findMemos(Long userId);
 }

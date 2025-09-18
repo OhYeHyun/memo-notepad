@@ -32,20 +32,26 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (status == AuthStatus.NO_TOKEN) {
-            response.sendRedirect("/login");
+        if (path.startsWith("/api/")) {
+            response.setStatus(status == AuthStatus.TOKEN_EXPIRED ? 440 : 401);
             return;
         }
 
-        response.sendRedirect("/login?error=expired");
+        filterChain.doFilter(request, response);
     }
 
     private boolean isPublicPath(String path) {
-        return path.startsWith("/login") ||
-                path.startsWith("/login/signup") ||
+        return path.equals("/") ||
+                path.startsWith("/app") ||
+                path.startsWith("/assets") ||
+                path.startsWith("/login/oauth2") ||
                 path.startsWith("/oauth2") ||
                 path.startsWith("/css/") ||
                 path.startsWith("/image") ||
-                path.startsWith("/actuator");
+                path.startsWith("/actuator") ||
+
+                path.equals("/api/auth/guest") ||
+                path.equals("/api/auth/login") ||
+                path.equals("/api/auth/logout");
     }
 }

@@ -5,7 +5,7 @@ import com.notepad.auth.dto.PrincipalUser;
 import com.notepad.global.enums.Role;
 import com.notepad.global.enums.TokenName;
 import com.notepad.auth.service.RedisService;
-import com.notepad.user.service.GuestService;
+import com.notepad.login.service.GuestService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

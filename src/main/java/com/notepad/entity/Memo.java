@@ -2,6 +2,7 @@ package com.notepad.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,12 +34,13 @@ public class Memo {
 
     @CreatedDate
     @Column(name = "created_date", updatable = false, nullable = false)
-    private LocalDateTime createdDate;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_date", nullable = false)
-    private LocalDateTime updatedDate;
+    private LocalDateTime updatedAt;
 
+    @Builder
     public Memo(String content, Long writerId) {
         this.content = content;
         this.writerId = writerId;

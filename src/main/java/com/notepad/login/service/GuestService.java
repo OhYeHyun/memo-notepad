@@ -1,4 +1,4 @@
-package com.notepad.user.service;
+package com.notepad.login.service;
 
 import com.notepad.memo.service.MemoService;
 import com.notepad.entity.User;
