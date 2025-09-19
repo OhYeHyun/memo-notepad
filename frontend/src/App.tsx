@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import LoginScreen from "./LoginScreen";
 import LoginModal from "./components/LoginModal";
+import SignupModal from "./components/SignupModal";
 import MemoScreen, { Me } from "./MemoScreen";
 import { j } from "./api";
 import Header from "./Header";
@@ -9,6 +10,7 @@ export default function App() {
     const [me, setMe] = useState<Me | null>(null);
     const [loading, setLoading] = useState(true);
     const [loginOpen, setLoginOpen] = useState(false);
+    const [signupOpen, setSignupOpen] = useState(false);
 
     const fetchMe = async () => {
         try { setMe(await j<Me>("/api/auth/me")); } catch { setMe(null); }
@@ -48,16 +50,22 @@ export default function App() {
                 me={me}
                 onLogout={logout}
                 onOpenLogin={() => setLoginOpen(true)}
+                onOpenSignup={() => setSignupOpen(true)}
                 hideActions={isLoginScreen}
             />
 
             {isLoginScreen ? (
-                <LoginScreen onGuest={guest} onLocalLoginClick={() => setLoginOpen(true)} />
+                <LoginScreen
+                    onGuest={guest}
+                    onLocalLoginClick={() => setLoginOpen(true)}
+                    onOpenSignup={() => setSignupOpen(true)}
+                />
             ) : (
-                <MemoScreen me={me!} onLogout={logout} onOpenLogin={() => setLoginOpen(true)} />
+                <MemoScreen me={me!} onLogout={logout}/>
             )}
 
             <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={fetchMe} />
+            <SignupModal open={signupOpen} onClose={()=>setSignupOpen(false)} onSuccess={fetchMe}/>
         </>
     );
 }

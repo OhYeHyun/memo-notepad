@@ -116,6 +116,35 @@ body{
     position:absolute; left:10px; top:50%; transform:translateY(-50%);
     opacity:.7; pointer-events:none; font-size:14px;
 }
+/* 칩 버튼 */
+.chip{
+    display:flex; align-items:center; gap:8px;
+    height:36px; padding:0 12px;
+    border-radius:999px;
+    background: rgba(255,255,255,.04);
+    color:var(--text);
+    border:1px solid rgba(255,255,255,.10);
+    cursor:pointer; font-weight:700;
+}
+.chip:hover{ filter: brightness(1.08) }
+.chip.active{
+    background: rgba(96,165,250,.12);
+    border-color: rgba(96,165,250,.35);
+    box-shadow: 0 0 0 3px rgba(96,165,250,.18);
+}
+.chip-meta{
+    font-weight:600; font-size:.82rem; color:#a7b0c3;
+    border-left:1px solid rgba(255,255,255,.12);
+    padding-left:8px;
+}
+/* 세그먼트 토글 */
+.seg { display:flex; gap:0; border:1px solid rgba(255,255,255,.08); border-radius:10px; overflow:hidden; }
+.seg-btn{
+    appearance:none; border:none; padding:8px 12px; cursor:pointer;
+    background: rgba(255,255,255,.03); color:var(--text); font-weight:700;
+}
+.seg-btn + .seg-btn{ border-left:1px solid rgba(255,255,255,.08); }
+.seg-btn.on{ background: rgba(96,165,250,.18); box-shadow: inset 0 0 0 1px rgba(96,165,250,.35); }
 
 /* ---- Memo list ---- */
 .list{ list-style:none; padding:0; margin:10px 0 0; display:flex; flex-direction:column; gap:10px }

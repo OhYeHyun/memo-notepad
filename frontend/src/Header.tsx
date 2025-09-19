@@ -5,10 +5,11 @@ type Props = {
     me: Me | null;
     onLogout: () => Promise<void>;
     onOpenLogin: () => void;
+    onOpenSignup: () => void;
     hideActions?: boolean;
 };
 
-export default function Header({ me, onLogout, onOpenLogin, hideActions }: Props) {
+export default function Header({ me, onLogout, onOpenLogin, onOpenSignup, hideActions }: Props) {
     if (hideActions) {
         return (
             <header className="topbar">
@@ -31,9 +32,9 @@ export default function Header({ me, onLogout, onOpenLogin, hideActions }: Props
                     <button className="btn ghost" onClick={onLogout}>로그아웃</button>
                 </div>
             ) : (
-                <div className="topbar-actions">
-                    <button className="btn ghost" onClick={onOpenLogin}>로그인</button>
-                    <a className="btn primary" href="/signup">회원가입</a>
+                <div className="cta-actions">
+                    {onOpenLogin ? <button className="btn" onClick={onOpenLogin}>로그인</button> : <a className="btn" href="/">로그인</a>}
+                    {onOpenSignup ? <button className="btn primary" onClick={onOpenSignup}>회원가입</button> : <a className="btn primary" href="/signup">회원가입</a>}
                 </div>
             )}
         </header>

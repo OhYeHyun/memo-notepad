@@ -1,7 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { j } from "../api";
 
-type Props = { open: boolean; onClose: () => void; onSuccess: () => Promise<void>; };
+type Props = { open: boolean; onClose: () => void; onSuccess: () => Promise<void>;};
 
 export default function LoginModal({ open, onClose, onSuccess }: Props) {
     const [loginId, setLoginId] = useState("");
@@ -38,7 +38,6 @@ export default function LoginModal({ open, onClose, onSuccess }: Props) {
 
                 <div className="alt-auth">
                     <a className="btn" href="/oauth2/authorization/kakao">카카오로 로그인</a>
-                    <a className="btn linklike" href="/signup">회원가입</a>
                 </div>
             </div>
         </div>
