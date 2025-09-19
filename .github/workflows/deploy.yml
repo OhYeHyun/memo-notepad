@@ -11,41 +11,58 @@ jobs:
     env:
       RELEASE_DIR: "/home/ubuntu/memo-notepad/releases"
       DEPLOY_PATH: "/home/ubuntu/memo-notepad/deploy.sh"
+      WWW_DIR: "/var/www/notepad"
 
     steps:
-      # 1. 소스코드 체크아웃
+      # 소스코드 체크아웃
       - name: Checkout source
-        uses: actions/checkout@v3
-
-      # 2. JDK 17 설치
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/checkout@v4
+          
+      # --- Frontend build ---
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          java-version: '17'
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      # --- Backend build ---
+      # JDK 21 설치
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
           distribution: 'temurin'
 
-      # 3. gradlew 실행 권한 부여
+      # gradlew 실행 권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 4. 빌드 (테스트 제외)
+      # 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 5. JAR 이름 설정
+      # JAR 이름 설정
       - name: Set JAR_NAME with timestamp
         run: echo "JAR_NAME=notepad-$(date +'%Y%m%d%H%M%S').jar" >> $GITHUB_ENV
 
-      # 6. JAR 파일 이름 수정
+      # JAR 파일 이름 수정
       - name: Rename JAR
         run: mv build/libs/notepad-0.0.1-SNAPSHOT.jar build/libs/${{ env.JAR_NAME }}
 
-      # 7. GitHub Actions 퍼블릭 IP 획득
+      # --- Network open for SSH (임시) ---
+      # GitHub Actions 퍼블릭 IP 획득
       - name: Get GitHub Actions IP
         id: ip
         uses: haythem/public-ip@v1.2
 
-      # 8. AWS 설정
+      # AWS 설정
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -53,7 +70,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 9. EC2 보안 그룹에 SSH 허용 (임시)
+      # EC2 보안 그룹에 SSH 허용 (임시)
       - name: Add IP to Security Group
         run: |
           aws ec2 authorize-security-group-ingress \
@@ -62,7 +79,7 @@ jobs:
             --port 22 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-      # 10. 빌드된 JAR 파일 EC2로 전송
+      # 빌드된 JAR 파일 EC2로 전송
       - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -73,7 +90,7 @@ jobs:
           target: "${{ env.RELEASE_DIR }}"
           strip_components: 2
 
-      # 11. EC2에서 애플리케이션 재시작
+      # EC2에서 애플리케이션 재시작
       - name: Restart App on EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -85,7 +102,7 @@ jobs:
             LATEST_JAR=$(ls -1tr *.jar | tail -n 1)
             ${{ env.DEPLOY_PATH }} $LATEST_JAR
 
-      # 12. SSH 허용 IP 제거 (보안)
+      # SSH 허용 IP 제거 (보안)
       - name: Remove IP from Security Group
         if: always()
         run: |
@@ -93,4 +110,5 @@ jobs:
             --group-name notepad-secure \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
+            --region ap-northeast-2
