@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (path.startsWith("/api/")) {
+        if (isApiPath(path)) {
             response.setStatus(status == AuthStatus.TOKEN_EXPIRED ? 440 : 401);
             return;
         }
@@ -48,10 +48,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 path.startsWith("/oauth2") ||
                 path.startsWith("/css/") ||
                 path.startsWith("/image") ||
-                path.startsWith("/actuator") ||
+                path.startsWith("/actuator");
+    }
 
-                path.equals("/api/auth/guest") ||
-                path.equals("/api/auth/login") ||
-                path.equals("/api/auth/logout");
+    private boolean isApiPath(String path) {
+        return path.startsWith("/api/");
     }
 }
