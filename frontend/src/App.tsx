@@ -1,18 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoginScreen from "./LoginScreen";
 import LoginModal from "./components/LoginModal";
 import MemoScreen, { Me } from "./MemoScreen";
-
-async function j<T>(url: string, init?: RequestInit): Promise<T> {
-    const res = await fetch(url, {
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        ...init,
-    });
-    if (res.status === 204) return undefined as T;
-    if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
-    return res.json();
-}
+import { j } from "./api";
+import Header from "./Header";
 
 export default function App() {
     const [me, setMe] = useState<Me | null>(null);
@@ -20,12 +11,7 @@ export default function App() {
     const [loginOpen, setLoginOpen] = useState(false);
 
     const fetchMe = async () => {
-        try {
-            const data = await j<Me>("/api/auth/me");
-            setMe(data);
-        } catch {
-            setMe(null);
-        }
+        try { setMe(await j<Me>("/api/auth/me")); } catch { setMe(null); }
     };
 
     useEffect(() => {
@@ -37,24 +23,40 @@ export default function App() {
     }, []);
 
     const guest = async () => {
-        await j<void>("/api/auth/guest", { method: "POST" });
-        await fetchMe();
+        try { await j<void>("/api/auth/guest", { method: "POST" }); await fetchMe(); }
+        catch (e) { console.error("게스트 로그인 실패:", e); }
     };
 
     const logout = async () => {
-        await j<void>("/api/auth/logout", { method: "POST" });
-        setMe(null);
+        try { await j<void>("/api/auth/logout", { method: "POST" }); setMe(null); }
+        catch (e) { console.error("로그아웃 실패:", e); }
     };
 
-    if (loading) return null;
+    if (loading) {
+        return (
+            <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",color:"#9aa3b2"}}>
+                로딩 중...
+            </div>
+        );
+    }
 
-    return me ? (
+    const isLoginScreen = !me;
+
+    return (
         <>
-            <MemoScreen me={me} onLogout={logout} />
-        </>
-    ) : (
-        <>
-            <LoginScreen onGuest={guest} onLocalLoginClick={() => setLoginOpen(true)} />
+            <Header
+                me={me}
+                onLogout={logout}
+                onOpenLogin={() => setLoginOpen(true)}
+                hideActions={isLoginScreen}
+            />
+
+            {isLoginScreen ? (
+                <LoginScreen onGuest={guest} onLocalLoginClick={() => setLoginOpen(true)} />
+            ) : (
+                <MemoScreen me={me!} onLogout={logout} onOpenLogin={() => setLoginOpen(true)} />
+            )}
+
             <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={fetchMe} />
         </>
     );

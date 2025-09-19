@@ -22,10 +22,10 @@ public class JwtLogoutSuccessProcessor {
 
         redisService.deleteRefreshToken(jwtPrincipal.getId());
 
-        Cookie accessCookie = jwtProvider.expireCookie(TokenName.ACCESS_TOKEN);
+        Cookie accessCookie = jwtProvider.expireCookie(request, TokenName.ACCESS_TOKEN);
         response.addCookie(accessCookie);
 
-        Cookie refreshCookie = jwtProvider.expireCookie(TokenName.REFRESH_TOKEN);
+        Cookie refreshCookie = jwtProvider.expireCookie(request, TokenName.REFRESH_TOKEN);
         response.addCookie(refreshCookie);
     }
 }

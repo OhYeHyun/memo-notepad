@@ -33,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (isApiPath(path)) {
-            response.setStatus(status == AuthStatus.TOKEN_EXPIRED ? 440 : 401);
+            response.setStatus(status == AuthStatus.TOKEN_EXPIRED ? 440 : HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
@@ -42,13 +42,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private boolean isPublicPath(String path) {
         return path.equals("/") ||
-                path.startsWith("/app") ||
+                path.equals("/app") ||
+                path.startsWith("/app/") ||
                 path.startsWith("/assets") ||
-                path.startsWith("/login/oauth2") ||
-                path.startsWith("/oauth2") ||
                 path.startsWith("/css/") ||
                 path.startsWith("/image") ||
-                path.startsWith("/actuator");
+                path.startsWith("/actuator") ||
+                (path.startsWith("/api/auth") && !path.contains("/me")) ||
+                path.startsWith("/oauth2") ||
+                path.startsWith("/login/oauth2") ||
+                path.equals("/error") ||
+                path.equals("/favicon.ico");
     }
 
     private boolean isApiPath(String path) {

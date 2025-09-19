@@ -4,6 +4,7 @@ import com.notepad.auth.dto.JwtPrincipal;
 import com.notepad.global.enums.Role;
 import com.notepad.global.enums.TokenName;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,12 +45,12 @@ public class JwtProvider {
         return Long.valueOf(jwtUtil.getId(token));
     }
 
-    public Cookie createCookie(TokenName name, String token) {
+    public Cookie createCookie(HttpServletRequest request, TokenName name, String token) {
         Cookie cookie = new Cookie(name.getValue(), token);
         cookie.setMaxAge(getCookieExpiry(name));
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(isSecureRequest(request));
 
         return cookie;
     }
@@ -68,14 +69,20 @@ public class JwtProvider {
         return 0;
     }
 
-    public Cookie expireCookie(TokenName name) {
+    public Cookie expireCookie(HttpServletRequest request, TokenName name) {
         Cookie cookie = new Cookie(name.getValue(), null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(isSecureRequest(request));
 
         return cookie;
+    }
+
+    private boolean isSecureRequest(HttpServletRequest request) {
+        String proto = request.getHeader("X-Forwarded-Proto");
+        if (proto != null) return "https".equalsIgnoreCase(proto);
+        return request.isSecure();
     }
 
     public String extractTokenFromCookies(Cookie[] cookies, TokenName name) {

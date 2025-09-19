@@ -48,7 +48,7 @@ public class MemoService {
 
     @Transactional
     public MemoClientResponse toggleMemo(Long userId, Long memoId) {
-        memoRepository.findById(userId).orElseThrow();
+        userRepository.findById(userId).orElseThrow();
 
         Memo memo = memoRepository.findById(memoId).orElseThrow();
         memo.toggleCheck();

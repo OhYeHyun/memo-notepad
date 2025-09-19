@@ -6,8 +6,9 @@ import { dirname, resolve } from 'node:path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-export default defineConfig({
+export default defineConfig(({command}) => ({
     plugins: [react()],
+    base: command === 'serve' ? '/' : '/app/',
     build: {
         outDir: resolve(__dirname, '../src/main/resources/static/app'),
         emptyOutDir: true,
@@ -16,8 +17,10 @@ export default defineConfig({
     server: {
         port: 5173,
         proxy: {
-            '/api':   { target: 'http://localhost:8080', changeOrigin: true },
-            '/oauth2':{ target: 'http://localhost:8080', changeOrigin: true }
+            '/api': {target: 'http://localhost:8080', changeOrigin: true},
+            '/oauth2': {target: 'http://localhost:8080', changeOrigin: true},
+            '/login': {target: 'http://localhost:8080', changeOrigin: true},
+            '/actuator': {target: 'http://localhost:8080', changeOrigin: true},
         }
     }
-})
+}));

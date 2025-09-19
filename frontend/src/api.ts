@@ -3,6 +3,13 @@ export class HttpError extends Error {
     constructor(status: number, message: string) { super(message); this.status = status; }
 }
 
+let onAuthRequired: (() => void) | null = null;
+export const apiEvents = {
+    setAuthHandler(h: () => void) {
+        onAuthRequired = h;
+    },
+};
+
 export async function j<T>(url: string, init?: RequestInit): Promise<T> {
     const res = await fetch(url, {
         credentials: "include",
@@ -13,8 +20,13 @@ export async function j<T>(url: string, init?: RequestInit): Promise<T> {
     if (res.status === 204) return undefined as T;
 
     if (!res.ok) {
+        if ((res.status === 401 || res.status === 403) && onAuthRequired) {
+            onAuthRequired();
+        }
         let msg = res.statusText;
-        try { msg = await res.text(); } catch {}
+        try {
+            msg = await res.text();
+        } catch {}
         throw new HttpError(res.status, msg || res.statusText);
     }
 

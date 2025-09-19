@@ -33,18 +33,18 @@ public class JwtAuthenticationService {
         }
 
         if (accessToken != null) {
-            return handleAccessToken(accessToken, refreshToken, response);
+            return handleAccessToken(accessToken, refreshToken, request, response);
         }
 
-        return handleRefreshTokenOnly(refreshToken, response);
+        return handleRefreshTokenOnly(refreshToken, request, response);
     }
 
-    private AuthStatus handleAccessToken(String accessToken, String refreshToken, HttpServletResponse response) {
+    private AuthStatus handleAccessToken(String accessToken, String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         if (jwtProvider.isExpiredToken(accessToken)) {
 
             if (refreshToken != null && !jwtProvider.isExpiredToken(refreshToken)) {
 
-                if (authenticateWithRefreshToken(response, refreshToken)) {
+                if (authenticateWithRefreshToken(request, response, refreshToken)) {
                     return AuthStatus.SUCCESS;
                 }
                 return AuthStatus.INVALID_TOKEN;
@@ -58,12 +58,12 @@ public class JwtAuthenticationService {
         return AuthStatus.INVALID_TOKEN;
     }
 
-    private AuthStatus handleRefreshTokenOnly(String refreshToken, HttpServletResponse response) {
+    private AuthStatus handleRefreshTokenOnly(String refreshToken,HttpServletRequest request, HttpServletResponse response) {
         if (jwtProvider.isExpiredToken(refreshToken)) {
             return AuthStatus.TOKEN_EXPIRED;
         }
 
-        if (authenticateWithRefreshToken(response, refreshToken)) {
+        if (authenticateWithRefreshToken(request, response, refreshToken)) {
             return AuthStatus.SUCCESS;
         }
         return AuthStatus.INVALID_TOKEN;
@@ -89,7 +89,7 @@ public class JwtAuthenticationService {
         return true;
     }
 
-    private boolean authenticateWithRefreshToken(HttpServletResponse response, String refreshToken) {
+    private boolean authenticateWithRefreshToken(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
         Long id = jwtProvider.getIdFromRefreshToken(refreshToken);
         if (id == null) {
             return false;
@@ -106,7 +106,7 @@ public class JwtAuthenticationService {
         }
 
         JwtPrincipal jwtPrincipal = new JwtPrincipal(user.get().getId(), user.get().getName(), user.get().getRole());
-        jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(response, jwtPrincipal);
+        jwtLoginSuccessProcessor.reissueAccessTokenAndAuthenticate(request, response, jwtPrincipal);
         return true;
     }
 }

@@ -264,3 +264,24 @@ body{
 /* 빈 상태 텍스트 톤 */
 .panel .muted { color: #a7b0c3 }
 
+/* 상단 우측 액션 */
+.topbar-actions { display:flex; align-items:center; gap:8px; }
+
+/* 로그인 모달 대안 섹션 */
+.alt-auth{
+    display:flex; gap:8px; margin-top:12px; justify-content:flex-end;
+}
+
+/* 텍스트 링크 느낌의 버튼 */
+.btn.linklike{
+    background:transparent;
+    border:none;
+    box-shadow:none;
+    padding:0 4px;
+    height:auto;
+    font-weight:700;
+    text-decoration:underline;
+}
+.btn.linklike:hover{ opacity:.85 }
+
+

@@ -24,6 +24,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         JwtPrincipal jwtPrincipal = jwtLoginSuccessProcessor.createJwtPrincipal(principalUser);
 
         jwtLoginSuccessProcessor.reissueTokensAndAuthenticate(request, response, jwtPrincipal);
-        getRedirectStrategy().sendRedirect(request, response, "/");
+        getRedirectStrategy().sendRedirect(request, response, "/app");
     }
 }

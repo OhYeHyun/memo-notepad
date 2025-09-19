@@ -4,6 +4,7 @@ import com.notepad.auth.dto.JwtPrincipal;
 import com.notepad.auth.jwt.JwtLoginSuccessProcessor;
 import com.notepad.auth.jwt.JwtLogoutSuccessProcessor;
 import com.notepad.dto.request.user.UserLoginRequest;
+import com.notepad.dto.response.user.UserClientResponse;
 import com.notepad.login.service.GuestService;
 import com.notepad.dto.request.user.UserSaveRequest;
 import com.notepad.user.service.UserService;
@@ -11,12 +12,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import static com.notepad.dto.response.user.UserClientResponse.ofUser;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -70,11 +71,10 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> me() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof JwtPrincipal principal)) {
-            return ResponseEntity.status(401).build();
+    public ResponseEntity<UserClientResponse> me(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof JwtPrincipal principal)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(Map.of("name", principal.getName(), "role", principal.getRole().name()));
+        return ResponseEntity.ok(ofUser(principal));
     }
 }
