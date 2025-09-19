@@ -31,13 +31,13 @@ export default function LoginModal({ open, onClose, onSuccess }: Props) {
                     {err && <div className="error">{err}</div>}
 
                     <div className="row gap">
-                        <button className="btn primary" disabled={busy}>{busy ? "로그인 중..." : "로그인"}</button>
-                        <button className="btn ghost" type="button" onClick={onClose}>닫기</button>
+                        <button className="btn primary lg" disabled={busy}>{busy ? "로그인 중..." : "로그인"}</button>
+                        <button className="btn ghost lg" type="button" onClick={onClose}>닫기</button>
                     </div>
                 </form>
 
                 <div className="alt-auth">
-                    <a className="btn" href="/oauth2/authorization/kakao">카카오로 로그인</a>
+                    <a className="btn kakao lg" href="/oauth2/authorization/kakao">카카오 로그인</a>
                 </div>
             </div>
         </div>

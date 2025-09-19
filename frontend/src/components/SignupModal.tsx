@@ -31,13 +31,13 @@ export default function SignupModal({ open, onClose, onSuccess }: Props) {
                 <h3 style={{marginTop:0}}>회원가입</h3>
                 <form className="form-col" onSubmit={submit}>
                     <input className="input" placeholder="이름" value={name} onChange={e=>setName(e.target.value)} autoFocus />
-                    <input className="input" placeholder="아이디" value={loginId} onChange={e=>setLoginId(e.target.value)} />
-                    <input className="input" type="password" placeholder="비밀번호" value={password} onChange={e=>setPassword(e.target.value)} />
+                    <input className="input" placeholder="아이디 (영문/숫자 6~12자 이내)" value={loginId} onChange={e=>setLoginId(e.target.value)} />
+                    <input className="input" type="password" placeholder="비밀번호 (특수문자 최소 1개 9~18자 이내)" value={password} onChange={e=>setPassword(e.target.value)} />
                     <input className="input" type="password" placeholder="비밀번호 확인" value={password2} onChange={e=>setPassword2(e.target.value)} />
                     {err && <div className="error">{err}</div>}
                     <div className="row gap">
-                        <button className="btn primary" disabled={busy}>{busy ? "가입 중..." : "가입하기"}</button>
-                        <button className="btn ghost" type="button" onClick={onClose}>닫기</button>
+                        <button className="btn primary lg" disabled={busy}>{busy ? "가입 중..." : "가입하기"}</button>
+                        <button className="btn ghost lg" type="button" onClick={onClose}>닫기</button>
                     </div>
                 </form>
             </div>

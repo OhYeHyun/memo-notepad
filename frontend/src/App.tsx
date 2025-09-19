@@ -11,9 +11,27 @@ export default function App() {
     const [loading, setLoading] = useState(true);
     const [loginOpen, setLoginOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
+    const [sessionRev, setSessionRev] = useState(0);
+
+    const bump = () => setSessionRev((r) => r + 1);
 
     const fetchMe = async () => {
-        try { setMe(await j<Me>("/api/auth/me")); } catch { setMe(null); }
+        try {
+            const next = await j<Me>("/api/auth/me");
+            setMe((prev) => {
+                const changed =
+                    !prev ||
+                    prev.role !== next.role ||
+                    prev.name !== next.name;
+                if (changed) bump();
+                return next;
+            });
+        } catch {
+            setMe((prev) => {
+                if (prev !== null) bump();
+                return null;
+            });
+        }
     };
 
     useEffect(() => {
@@ -30,8 +48,14 @@ export default function App() {
     };
 
     const logout = async () => {
-        try { await j<void>("/api/auth/logout", { method: "POST" }); setMe(null); }
-        catch (e) { console.error("로그아웃 실패:", e); }
+        try {
+            await j<void>("/api/auth/logout", { method: "POST" });
+        } catch (e) {
+            console.error("로그아웃 실패:", e);
+        } finally {
+            setMe(null);
+            bump();
+        }
     };
 
     if (loading) {
@@ -61,7 +85,7 @@ export default function App() {
                     onOpenSignup={() => setSignupOpen(true)}
                 />
             ) : (
-                <MemoScreen me={me!} onLogout={logout}/>
+                <MemoScreen key={`session-${sessionRev}`} me={me!} onLogout={logout}/>
             )}
 
             <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={fetchMe} />

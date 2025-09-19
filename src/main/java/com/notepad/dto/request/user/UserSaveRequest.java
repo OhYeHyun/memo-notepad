@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public record UserSaveRequest(
         @NotBlank @Size(min = 1, max = 8) String name,
-        @NotBlank @Pattern(regexp = "^(?=.*[a-zA-Z0-9])[a-zA-Z0-9]{5,20}$") String loginId,
-        @NotBlank @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>]).{9,30}$") String password
+        @NotBlank @Pattern(regexp = "^(?=.*[a-zA-Z0-9])[a-zA-Z0-9]{6,12}$") String loginId,
+        @NotBlank @Pattern(regexp = "^(?=.*[!@#$%^&*(),.?\":{}|<>]).{9,18}$") String password
 ) {
 }

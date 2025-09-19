@@ -13,7 +13,7 @@ export default function Header({ me, onLogout, onOpenLogin, onOpenSignup, hideAc
     if (hideActions) {
         return (
             <header className="topbar">
-                <div className="brand">Notepad</div>
+                <div className="brand brand--gradient">Notepad</div>
                 <div className="spacer" />
             </header>
         );
@@ -24,7 +24,7 @@ export default function Header({ me, onLogout, onOpenLogin, onOpenSignup, hideAc
 
     return (
         <header className="topbar">
-            <div className="brand">Notepad</div>
+            <div className="brand brand--gradient">Notepad</div>
             <div className="spacer" />
             {isAuthed ? (
                 <div className="who">
@@ -33,8 +33,8 @@ export default function Header({ me, onLogout, onOpenLogin, onOpenSignup, hideAc
                 </div>
             ) : (
                 <div className="cta-actions">
-                    {onOpenLogin ? <button className="btn" onClick={onOpenLogin}>로그인</button> : <a className="btn" href="/">로그인</a>}
-                    {onOpenSignup ? <button className="btn primary" onClick={onOpenSignup}>회원가입</button> : <a className="btn primary" href="/signup">회원가입</a>}
+                    {onOpenLogin ? <button className="btn lg" onClick={onOpenLogin}>로그인</button> : <a className="btn lg" href="/">로그인</a>}
+                    {onOpenSignup ? <button className="btn primary lg" onClick={onOpenSignup}>회원가입</button> : <a className="btn primary lg" href="/signup">회원가입</a>}
                 </div>
             )}
         </header>

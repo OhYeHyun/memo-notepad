@@ -51,20 +51,33 @@ export default function MemoScreen({ me }: Props) {
         return { }; // all
     };
 
-    const buildUrl = () => {
+    const buildUrl = (over?: {
+        q?: string;
+        createdPreset?: CreatedPreset;
+        sortBy?: SortBy;
+    }) => {
+        const _q = over?.q ?? q;
+        const _createdPreset = over?.createdPreset ?? createdPreset;
+        const _sortBy = over?.sortBy ?? sortBy;
+
         const qs = new URLSearchParams();
-        if (q.trim()) qs.set("content", q.trim());
-        const r = presetToRange(createdPreset);
+        if (_q.trim()) qs.set("content", _q.trim());
+
+        const r = presetToRange(_createdPreset);
         if (r.from) qs.set("createdFrom", r.from);
         if (r.to)   qs.set("createdTo", r.to);
-        if (sortBy === "created") qs.set("sort", "createdDate,desc");
+        if (_sortBy === "created") qs.set("sort", "createdDate,desc");
         else qs.set("sort", "updatedDate,desc");
         return qs.toString() ? `/api/memos?${qs}` : "/api/memos";
     };
 
-    const load = async () => {
+    const load = async (over?: {
+        q?: string;
+        createdPreset?: CreatedPreset;
+        sortBy?: SortBy;
+    }) => {
         const myReq = ++reqRef.current;
-        const data = await j<MemoDto[]>(buildUrl());
+        const data = await j<MemoDto[]>(buildUrl(over));
         if (reqRef.current === myReq) setList(data.map(map));
     };
 
@@ -77,33 +90,77 @@ export default function MemoScreen({ me }: Props) {
     }, []);
 
     const add = async () => {
-        if (!newText.trim()) return;
+        if (!newText.trim()) {
+            newInputRef.current?.focus();
+            return;
+        }
         try {
             await j<MemoDto>("/api/memos", { method: "POST", body: JSON.stringify({ content: newText.trim() }) });
-            setNewText(""); await load();
+            setNewText("");
+            await load();
+            newInputRef.current?.focus();
         } catch (e:any) {
             if (e instanceof HttpError && (e.status === 401 || e.status === 403)) setErr("로그인이 필요합니다. 다시 로그인해 주세요.");
             else setErr("메모 추가 실패");
+        } finally {
+            newInputRef.current?.focus();
         }
     };
 
-    const remove = async (id: number) => { try { await j<void>(`/api/memos/${id}`, { method:"DELETE" }); await load(); } catch { setErr("삭제 실패"); } };
+    const remove = async (id: number) => {
+        try {
+            await j<void>(`/api/memos/${id}`, { method:"DELETE" });
+            await load();
+            newInputRef.current?.focus();
+        } catch {
+            setErr("삭제 실패");
+        } finally {
+            newInputRef.current?.focus();
+        }
+    };
+
     const toggle = async (id: number) => {
         setList(prev => prev.map(m => (m.id === id ? { ...m, isChecked: !m.isChecked } : m)));
-        try { await j<MemoDto>(`/api/memos/${id}/check`, { method:"PATCH" }); }
-        catch { setList(prev => prev.map(m => (m.id === id ? { ...m, isChecked: !m.isChecked } : m))); setErr("상태 변경 실패"); }
+        try {
+            await j<MemoDto>(`/api/memos/${id}/check`, { method:"PATCH" });
+        } catch {
+            setList(prev => prev.map(m => (m.id === id ? { ...m, isChecked: !m.isChecked } : m)));
+            setErr("상태 변경 실패");
+        }
     };
+
     const saveEdit = async () => {
-        if (!editing || !editing.text.trim()) return;
+        if (!editing || !editing.text.trim()) {
+            newInputRef.current?.focus();
+            return;
+        }
         const { id, text } = editing;
-        try { await j<MemoDto>(`/api/memos/${id}`, { method:"PATCH", body: JSON.stringify({ content: text.trim() }) }); setEditing(null); await load(); }
-        catch { setErr("수정 실패"); }
+        try {
+            await j<MemoDto>(`/api/memos/${id}`, { method:"PATCH", body: JSON.stringify({ content: text.trim() }) });
+            setEditing(null);
+            await load();
+            newInputRef.current?.focus();
+        } catch {
+            setErr("수정 실패");
+        } finally {
+            newInputRef.current?.focus();
+        }
     };
 
     const filteredInfo = useMemo(() => ({ total: list.length, done: list.filter(m=>m.isChecked).length }), [list]);
 
     const submitSearch = async (e?: React.FormEvent) => { e?.preventDefault(); try { setErr(null); await load(); } catch { setErr("검색 실패"); } };
-    const clearSearch = async () => { setQ(""); setCreatedPreset("all"); setSortBy("updated"); await load(); };
+    const clearSearch = async () => {
+        setQ("");
+        setCreatedPreset("all");
+        setSortBy("updated");
+        try {
+            setErr(null);
+            await load({ q: "", createdPreset: "all", sortBy: "updated" });
+        } catch {
+            setErr("검색 실패");
+        }
+    };
 
     useEffect(() => {
         const onKey = (ev: KeyboardEvent) => {
@@ -111,6 +168,11 @@ export default function MemoScreen({ me }: Props) {
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
+    }, []);
+
+    const newInputRef = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        newInputRef.current?.focus();
     }, []);
 
     const isGuest = me.role === "ROLE_GUEST";
@@ -131,7 +193,7 @@ export default function MemoScreen({ me }: Props) {
                                 <input
                                     id="memo-search-input"
                                     className="input"
-                                    placeholder='내용 검색 ("/" 포커스)'
+                                    placeholder='내용 검색'
                                     value={q}
                                     onChange={(e) => setQ(e.target.value)}
                                 />
@@ -152,7 +214,10 @@ export default function MemoScreen({ me }: Props) {
                                     key={p}
                                     type="button"
                                     className={`chip ${createdPreset===p ? "active" : ""}`}
-                                    onClick={() => { setCreatedPreset(p); submitSearch(); }}
+                                    onClick={async () => {
+                                        setCreatedPreset(p);
+                                        try { setErr(null); await load({ createdPreset: p }); } catch { setErr("검색 실패"); }
+                                    }}
                                 >
                                     {p==="7d"?"최근 7일":p==="30d"?"최근 30일":p==="month"?"이번 달":"전체"}
                                 </button>
@@ -160,22 +225,32 @@ export default function MemoScreen({ me }: Props) {
                         </div>
 
                         <div className="seg">
-                            <button type="button" className={`seg-btn ${sortBy==="updated"?"on":""}`} onClick={() => { setSortBy("updated"); submitSearch(); }}>
+                            <button type="button" className={`seg-btn ${sortBy==="updated"?"on":""}`}
+                                    onClick={async () => {
+                                        setSortBy("updated");
+                                        try { setErr(null); await load({ sortBy: "updated" }); } catch { setErr("검색 실패"); }
+                                    }}>
                                 최근 수정
                             </button>
-                            <button type="button" className={`seg-btn ${sortBy==="created"?"on":""}`} onClick={() => { setSortBy("created"); submitSearch(); }}>
+                            <button type="button" className={`seg-btn ${sortBy==="created"?"on":""}`}
+                                    onClick={async () => {
+                                        setSortBy("created");
+                                        try { setErr(null); await load({ sortBy: "created" }); } catch { setErr("검색 실패"); }
+                                    }}>
                                 최근 생성
                             </button>
                         </div>
                     </div>
 
-                    <div className="row gap mt">
+                    <div className="row gap mt compose">
                         <input
+                            ref={newInputRef}
                             className="input flex1"
                             placeholder={isGuest ? "메모를 입력하세요 (게스트는 임시 저장)" : "메모를 입력하세요"}
                             value={newText}
                             onChange={(e) => setNewText(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && add()}
+                            autoFocus
                         />
                         <button className="btn primary" onClick={add}>추가</button>
                     </div>
@@ -199,7 +274,7 @@ export default function MemoScreen({ me }: Props) {
                                 return (
                                     <li key={m.id} className={`item ${m.isChecked ? "done" : ""}`}>
                                         <button
-                                            className={`checkbox2 ${m.isChecked ? "on" : ""}`}
+                                            className={`checkbox2 round ${m.isChecked ? "on" : ""}`}
                                             onClick={() => toggle(m.id)}
                                             aria-pressed={m.isChecked}
                                             title="완료 토글"
