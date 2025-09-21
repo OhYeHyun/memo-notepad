@@ -33,14 +33,11 @@ public class MemoService {
     @Transactional(readOnly = true)
     public List<MemoClientResponse> getMemoList(Long userId, MemoSearchRequest request) {
         String q = request.q();
-        SearchMode mode = request.mode();
         SortBy sortBy = request.sortBy();
 
         if (sortBy == null) sortBy = SortBy.UPDATED;
 
-        if (mode == null) {
-            mode = (q != null && q.strip().length() >= MIN_FULLTEXT_LEN) ? SearchMode.FULLTEXT : SearchMode.FAST;
-        }
+        SearchMode mode = decideSearchMode(request.mode(), q);
 
         if (SearchMode.FULLTEXT.equals(mode)) {
             String fulltext = toFTS(request.q());
@@ -56,6 +53,16 @@ public class MemoService {
                         userId
                 )
         );
+    }
+
+    private SearchMode decideSearchMode(SearchMode requested, String q) {
+        int len = q == null ? 0 : q.strip().length();
+
+        if (requested == SearchMode.FULLTEXT && len >= MIN_FULLTEXT_LEN) {
+            return SearchMode.FULLTEXT;
+        }
+
+        return SearchMode.FAST;
     }
 
     @Transactional
