@@ -13,6 +13,9 @@ type Props = {
 
 type CreatedPreset = "all" | "7d" | "30d" | "month";
 type SortBy = "updated" | "created";
+type SearchMode = "fast" | "fulltext";
+
+const MIN_FULLTEXT_LEN = 2;
 
 export default function MemoScreen({ me }: Props) {
     const [list, setList] = useState<MemoItem[]>([]);
@@ -20,6 +23,7 @@ export default function MemoScreen({ me }: Props) {
     const [q, setQ] = useState("");
     const [createdPreset, setCreatedPreset] = useState<CreatedPreset>("all");
     const [sortBy, setSortBy] = useState<SortBy>("updated");
+    const [searchMode] = useState<SearchMode>("fulltext");
     const [newText, setNewText] = useState("");
     const [editing, setEditing] = useState<{ id: number; text: string } | null>(null);
     const [err, setErr] = useState<string | null>(null);
@@ -48,33 +52,44 @@ export default function MemoScreen({ me }: Props) {
             const from = `${yyyy}-${mm}-01`;
             return { from, to: tomorrow };
         }
-        return { }; // all
+        return { };
     };
 
     const buildUrl = (over?: {
         q?: string;
         createdPreset?: CreatedPreset;
         sortBy?: SortBy;
+        searchMode?: SearchMode;
     }) => {
         const _q = over?.q ?? q;
         const _createdPreset = over?.createdPreset ?? createdPreset;
         const _sortBy = over?.sortBy ?? sortBy;
+        const _mode: SearchMode = over?.searchMode ?? searchMode;
 
         const qs = new URLSearchParams();
-        if (_q.trim()) qs.set("content", _q.trim());
+        if (_q?.trim()) qs.set("q", _q.trim());
+
+        const effectiveMode =
+            _mode === "fulltext" && (_q?.trim().length ?? 0) >= MIN_FULLTEXT_LEN
+                ? "FULLTEXT"
+                : "FAST";
+        qs.set("mode", effectiveMode);
 
         const r = presetToRange(_createdPreset);
-        if (r.from) qs.set("createdFrom", r.from);
-        if (r.to)   qs.set("createdTo", r.to);
-        if (_sortBy === "created") qs.set("sort", "createdDate,desc");
-        else qs.set("sort", "updatedDate,desc");
-        return qs.toString() ? `/api/memos?${qs}` : "/api/memos";
+        if (r.from) qs.set("from", r.from);
+        if (r.to)   qs.set("to", r.to);
+
+        qs.set("sortBy", _sortBy === "created" ? "CREATED" : "UPDATED");
+
+        qs.set("_", String(Date.now()));
+        return `/api/memos?${qs}`;
     };
 
     const load = async (over?: {
         q?: string;
         createdPreset?: CreatedPreset;
         sortBy?: SortBy;
+        searchMode?: SearchMode;
     }) => {
         const myReq = ++reqRef.current;
         const data = await j<MemoDto[]>(buildUrl(over));
@@ -123,6 +138,7 @@ export default function MemoScreen({ me }: Props) {
         setList(prev => prev.map(m => (m.id === id ? { ...m, isChecked: !m.isChecked } : m)));
         try {
             await j<MemoDto>(`/api/memos/${id}/check`, { method:"PATCH" });
+            await load();
         } catch {
             setList(prev => prev.map(m => (m.id === id ? { ...m, isChecked: !m.isChecked } : m)));
             setErr("상태 변경 실패");

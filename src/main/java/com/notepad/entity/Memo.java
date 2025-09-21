@@ -33,21 +33,31 @@ public class Memo {
     private Long writerId;
 
     @CreatedDate
-    @Column(name = "created_date", updatable = false, nullable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_date", nullable = false)
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at_all", nullable = false)
+    private LocalDateTime updatedAtAll;
+
+    @Column(name = "updated_at_content", nullable = false)
+    private LocalDateTime updatedAtContent;
+
 
     @Builder
     public Memo(String content, Long writerId) {
         this.content = content;
         this.writerId = writerId;
+        this.updatedAtContent = LocalDateTime.now();
     }
 
     public void updateContent(String content) {
+        if (this.content.equals(content)) {
+            return;
+        }
+
         this.content = content;
+        this.updatedAtContent = LocalDateTime.now();
     }
 
     public void toggleCheck() {

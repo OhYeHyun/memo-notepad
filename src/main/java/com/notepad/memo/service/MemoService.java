@@ -5,6 +5,8 @@ import com.notepad.dto.response.memo.MemoClientResponse;
 import com.notepad.entity.User;
 import com.notepad.entity.Memo;
 import com.notepad.dto.request.memo.MemoSearchRequest;
+import com.notepad.global.enums.SearchMode;
+import com.notepad.global.enums.SortBy;
 import com.notepad.user.repository.UserRepository;
 import com.notepad.memo.repository.MemoRepository;
 import com.notepad.memo.repository.impl.MemoRepositorySupport;
@@ -16,10 +18,13 @@ import java.util.List;
 
 import static com.notepad.dto.response.memo.MemoClientResponse.ofMemo;
 import static com.notepad.dto.response.memo.MemoClientResponse.ofMemos;
+import static com.notepad.global.utils.FullText.toFTS;
 
 @Service
 @RequiredArgsConstructor
 public class MemoService {
+
+    private static final int MIN_FULLTEXT_LEN = 2;
 
     private final MemoRepository memoRepository;
     private final MemoRepositorySupport memoRepositorySupport;
@@ -27,9 +32,32 @@ public class MemoService {
 
     @Transactional(readOnly = true)
     public List<MemoClientResponse> getMemoList(Long userId, MemoSearchRequest request) {
-        List<Memo> memoList = memoRepositorySupport.searchMemos(request, userId);
+        String q = request.q();
+        SearchMode mode = request.mode();
+        SortBy sortBy = request.sortBy();
 
-        return ofMemos(memoList);
+        if (sortBy == null) sortBy = SortBy.UPDATED;
+
+        if (mode == null) {
+            mode = (q != null && q.strip().length() >= MIN_FULLTEXT_LEN) ? SearchMode.FULLTEXT : SearchMode.FAST;
+        }
+
+        if (SearchMode.FULLTEXT.equals(mode)) {
+            String fulltext = toFTS(request.q());
+            System.out.println("========" + fulltext);
+
+            if (fulltext != null) {
+                System.out.println("====fullText====");
+                return ofMemos(memoRepository.searchFulltext(userId, fulltext, sortBy.name()));
+            }
+        }
+        System.out.println("====fast====");
+        return ofMemos(
+                memoRepositorySupport.searchMemosFast(
+                        new MemoSearchRequest(q, SearchMode.FAST, sortBy, request.from(), request.to()),
+                        userId
+                )
+        );
     }
 
     @Transactional
