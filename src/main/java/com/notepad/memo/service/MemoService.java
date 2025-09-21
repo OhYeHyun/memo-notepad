@@ -44,14 +44,12 @@ public class MemoService {
 
         if (SearchMode.FULLTEXT.equals(mode)) {
             String fulltext = toFTS(request.q());
-            System.out.println("========" + fulltext);
 
             if (fulltext != null) {
-                System.out.println("====fullText====");
                 return ofMemos(memoRepository.searchFulltext(userId, fulltext, sortBy.name()));
             }
         }
-        System.out.println("====fast====");
+
         return ofMemos(
                 memoRepositorySupport.searchMemosFast(
                         new MemoSearchRequest(q, SearchMode.FAST, sortBy, request.from(), request.to()),
