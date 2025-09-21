@@ -13,6 +13,9 @@ frontend/.vite/
 frontend/dist/
 frontend/.env.local
 
+# backend 정적 산출물
+/src/main/resources/static/app
+
 ### STS ###
 .apt_generated
 .classpath

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -72,9 +73,15 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserClientResponse> me(Authentication authentication) {
+        HttpHeaders h = new HttpHeaders();
+        h.setCacheControl("no-store, no-cache, must-revalidate");
+        h.add("Pragma", "no-cache");
+        h.setExpires(0);
+        h.add("Vary", "Cookie");
+
         if (authentication == null || !(authentication.getPrincipal() instanceof JwtPrincipal principal)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(h).build();
         }
-        return ResponseEntity.ok(ofUser(principal));
+        return ResponseEntity.ok().headers(h).body(ofUser(principal));
     }
 }

@@ -40,6 +40,7 @@ public class UserService {
         return createMemberPrinciple(guest);
     }
 
+    @Transactional
     public JwtPrincipal login(UserLoginRequest request) {
         User user = userRepository.findByLoginId(request.loginId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));

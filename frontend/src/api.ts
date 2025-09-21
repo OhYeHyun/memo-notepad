@@ -4,11 +4,6 @@ export class HttpError extends Error {
 }
 
 let onAuthRequired: (() => void) | null = null;
-export const apiEvents = {
-    setAuthHandler(h: () => void) {
-        onAuthRequired = h;
-    },
-};
 
 export async function j<T>(url: string, init?: RequestInit): Promise<T> {
     const res = await fetch(url, {

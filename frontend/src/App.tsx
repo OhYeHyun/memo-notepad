@@ -14,10 +14,18 @@ export default function App() {
     const [sessionRev, setSessionRev] = useState(0);
 
     const bump = () => setSessionRev((r) => r + 1);
+    let meAbort: AbortController | null = null;
 
     const fetchMe = async () => {
+        meAbort?.abort();
+        meAbort = new AbortController();
         try {
-            const next = await j<Me>("/api/auth/me");
+            const next = await j<Me>("/api/auth/me", {
+                method: "GET",
+                credentials: "include",
+                cache: "no-store",
+                signal: meAbort.signal
+            });
             setMe((prev) => {
                 const changed =
                     !prev ||
@@ -31,8 +39,21 @@ export default function App() {
                 if (prev !== null) bump();
                 return null;
             });
+        } finally {
+            meAbort = null;
         }
     };
+
+    if (typeof window !== "undefined") {
+        window.addEventListener("pageshow", e => {
+            if ((e as PageTransitionEvent).persisted) {
+                fetchMe();
+            }
+        });
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") fetchMe();
+        });
+    }
 
     useEffect(() => {
         (async () => {
