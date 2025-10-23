@@ -13,7 +13,7 @@ type Props = {
 
 type CreatedPreset = "all" | "7d" | "30d" | "month";
 type SortBy = "updated" | "created";
-type SearchMode = "fast" | "fulltext";
+type SearchMode = "starts_with" | "fulltext";
 
 const MIN_FULLTEXT_LEN = 2;
 
@@ -72,7 +72,7 @@ export default function MemoScreen({ me }: Props) {
         const effectiveMode =
             _mode === "fulltext" && (_q?.trim().length ?? 0) >= MIN_FULLTEXT_LEN
                 ? "FULLTEXT"
-                : "FAST";
+                : "STARTS_WITH";
         qs.set("mode", effectiveMode);
 
         const r = presetToRange(_createdPreset);

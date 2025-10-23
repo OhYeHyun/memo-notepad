@@ -18,30 +18,61 @@ public class MemoRepositorySupport {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<Memo> searchMemosFast(MemoSearchRequest request, Long memberId) {
+    public List<Memo> searchMemosStartsWith(MemoSearchRequest request, Long memberId) {
         QMemo memo = QMemo.memo;
 
-        BooleanBuilder where = new BooleanBuilder();
-        where.and(memo.writerId.eq(memberId));
-
-        if (request.from() != null) {
-            where.and(memo.createdAt.goe((request.from().atStartOfDay())));
-        }
-        if (request.to() != null) {
-            where.and(memo.createdAt.lt((request.to().atStartOfDay())));
-        }
+        BooleanBuilder where = baseConditions(request, memo, memberId);
 
         if (request.q() != null && !request.q().isBlank()) {
-            where.and(memo.content.startsWithIgnoreCase(request.q()));
+            where.and(memo.content.startsWith(request.q()));
         }
-
-        OrderSpecifier<?> order = SortBy.UPDATED.equals(request.sortBy()) ? memo.updatedAtContent.desc() : memo.createdAt.desc();
 
         return queryFactory.selectFrom(memo)
                 .where(where)
-                .orderBy(order, memo.id.desc())
+                .orderBy(
+                        sortOrder(request, memo),
+                        memo.id.desc()
+                )
                 .limit(20)
                 .fetch();
+    }
+
+    public List<Memo> searchMemosFulltext(MemoSearchRequest request, Long memberId, List<Long> candidateIds) {
+        QMemo memo = QMemo.memo;
+
+        BooleanBuilder where = baseConditions(request, memo, memberId)
+                .and(memo.id.in(candidateIds));
+
+        return queryFactory.selectFrom(memo)
+                .where(where)
+                .orderBy(
+                        sortOrder(request, memo),
+                        memo.id.desc()
+                )
+                .limit(20)
+                .fetch();
+    }
+
+    private BooleanBuilder baseConditions(MemoSearchRequest request, QMemo memo, Long memberId) {
+        BooleanBuilder where = new BooleanBuilder()
+                .and(memo.writerId.eq(memberId));
+
+        if (request.from() != null) {
+            where.and(memo.createdAt.goe(request.from().atStartOfDay()));
+        }
+        if (request.to() != null) {
+            where.and(memo.createdAt.lt(request.to().atStartOfDay()));
+        }
+
+        return where;
+    }
+
+    private OrderSpecifier<?> sortOrder(MemoSearchRequest request, QMemo memo) {
+        if (request.sortBy().equals(SortBy.UPDATED)) {
+            return memo.updatedAtContent.desc();
+        }
+
+        return memo.createdAt.desc();
     }
 }
 

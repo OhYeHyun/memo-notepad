@@ -6,7 +6,6 @@ import com.notepad.entity.User;
 import com.notepad.entity.Memo;
 import com.notepad.dto.request.memo.MemoSearchRequest;
 import com.notepad.global.enums.SearchMode;
-import com.notepad.global.enums.SortBy;
 import com.notepad.user.repository.UserRepository;
 import com.notepad.memo.repository.MemoRepository;
 import com.notepad.memo.repository.impl.MemoRepositorySupport;
@@ -33,26 +32,24 @@ public class MemoService {
     @Transactional(readOnly = true)
     public List<MemoClientResponse> getMemoList(Long userId, MemoSearchRequest request) {
         String q = request.q();
-        SortBy sortBy = request.sortBy();
-
-        if (sortBy == null) sortBy = SortBy.UPDATED;
-
         SearchMode mode = decideSearchMode(request.mode(), q);
 
         if (SearchMode.FULLTEXT.equals(mode)) {
-            String fulltext = toFTS(request.q());
+            String fulltext = toFTS(q);
 
             if (fulltext != null) {
-                return ofMemos(memoRepository.searchFulltext(userId, fulltext, sortBy.name()));
+                List<Long> candidateIds = memoRepository.findFulltextCandidateIds(fulltext);
+                System.out.println(candidateIds);
+
+                if (candidateIds == null || candidateIds.isEmpty()) {
+                    return List.of();
+                }
+
+                return ofMemos(memoRepositorySupport.searchMemosFulltext(request, userId, candidateIds));
             }
         }
 
-        return ofMemos(
-                memoRepositorySupport.searchMemosFast(
-                        new MemoSearchRequest(q, SearchMode.FAST, sortBy, request.from(), request.to()),
-                        userId
-                )
-        );
+        return ofMemos(memoRepositorySupport.searchMemosStartsWith(request, userId));
     }
 
     private SearchMode decideSearchMode(SearchMode requested, String q) {
@@ -62,7 +59,7 @@ public class MemoService {
             return SearchMode.FULLTEXT;
         }
 
-        return SearchMode.FAST;
+        return SearchMode.STARTS_WITH;
     }
 
     @Transactional
