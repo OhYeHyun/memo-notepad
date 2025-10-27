@@ -49,7 +49,6 @@ public class JwtProvider {
         Cookie cookie = new Cookie(name.getValue(), token);
         cookie.setMaxAge(getCookieExpiry(name));
         cookie.setPath("/");
-        cookie.setAttribute("SameSite", "None");
         cookie.setHttpOnly(true);
         cookie.setSecure(isSecureRequest(request));
 
