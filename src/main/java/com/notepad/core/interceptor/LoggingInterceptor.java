@@ -35,6 +35,8 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
         int status = response.getStatus();
 
-        log.info("[requestId:{}] [userId:{}] [uri:{}] [executionTime:{}] [status:{}]", requestId, userId, uri, executionTime, status);
+        if (requestId != null) {
+            log.info("[requestId:{}] [userId:{}] [uri:{}] [executionTime:{}] [status:{}]", requestId, userId, uri, executionTime, status);
+        }
     }
 }
