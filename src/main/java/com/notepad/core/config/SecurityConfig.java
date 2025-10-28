@@ -71,6 +71,7 @@ public class SecurityConfig {
                                 "/image/**",
                                 "/css/**",
                                 "/actuator/**",
+                                "/.well-known/**",
 
                                 "/api/auth/**",
                                 "/oauth2/**",
