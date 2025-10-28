@@ -24,6 +24,12 @@ public class JwtAuthenticationService {
     private final RedisService redisService;
     private final UserService userService;
 
+    public Long authenticatedUserId(HttpServletRequest request) {
+        String refreshToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.REFRESH_TOKEN);
+
+        return jwtProvider.getIdFromRefreshToken(refreshToken);
+    }
+
     public AuthStatus authenticateStatus(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.ACCESS_TOKEN);
         String refreshToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.REFRESH_TOKEN);

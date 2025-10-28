@@ -13,7 +13,7 @@ logging:
   level:
     org:
       hibernate:
-        SQL: DEBUG
+        sql: info
         orm:
           jdbc:
-            bind: TRACE
+            bind: info

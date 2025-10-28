@@ -2,7 +2,7 @@ package com.notepad.core.config;
 
 import com.notepad.auth.handler.CustomAuthenticationFailureHandler;
 import com.notepad.auth.handler.CustomAuthenticationSuccessHandler;
-import com.notepad.auth.jwt.JwtFilter;
+import com.notepad.core.filter.JwtFilter;
 import com.notepad.auth.service.CustomUserDetailsService;
 import com.notepad.auth.service.CustomOAuth2UserService;
 import com.notepad.core.config.component.CorsConfig;
