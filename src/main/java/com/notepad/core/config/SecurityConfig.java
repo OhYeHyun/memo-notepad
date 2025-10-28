@@ -52,6 +52,8 @@ public class SecurityConfig {
 
                 .headers(headers -> headers
                         .cacheControl(cache -> {})
+                        .contentSecurityPolicy(csp ->
+                                csp.policyDirectives("default-src 'self'; script-src 'self' cdn.jsdelivr.net"))
                 )
 
                 .httpBasic(AbstractHttpConfigurer::disable)
