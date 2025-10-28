@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import LoginScreen from "./LoginScreen";
 import LoginModal from "./components/LoginModal";
 import SignupModal from "./components/SignupModal";
@@ -11,77 +11,102 @@ export default function App() {
     const [loading, setLoading] = useState(true);
     const [loginOpen, setLoginOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
-    const [sessionRev, setSessionRev] = useState(0);
+    const [, setSessionRev] = useState(0);
 
     const bump = () => setSessionRev((r) => r + 1);
-    let meAbort: AbortController | null = null;
 
-    const fetchMe = async () => {
-        meAbort?.abort();
-        meAbort = new AbortController();
+    const fetchingRef = useRef(false);
+    const abortRef = useRef<AbortController | null>(null);
+    const lastFetchAtRef = useRef(0);
+    const unmountedRef = useRef(false);
+
+    const COOLDOWN_MS = 1000;
+
+    const safeSetMe = useCallback((updater: (prev: Me | null) => Me | null) => {
+        if (!unmountedRef.current) setMe(updater);
+    }, []);
+
+    const fetchMe = useCallback(async () => {
+        const now = Date.now();
+
+        if (now - lastFetchAtRef.current < COOLDOWN_MS) return;
+        lastFetchAtRef.current = now;
+
+        if (fetchingRef.current) return;
+        fetchingRef.current = true;
+
+        abortRef.current?.abort();
+        abortRef.current = new AbortController();
+
         try {
             const next = await j<Me>("/api/auth/me", {
                 method: "GET",
                 credentials: "include",
                 cache: "no-store",
-                signal: meAbort.signal
+                signal: abortRef.current.signal,
             });
-            setMe((prev) => {
-                const changed =
-                    !prev ||
-                    prev.role !== next.role ||
-                    prev.name !== next.name;
-                if (changed) bump();
-                return next;
+
+            safeSetMe((prev) => {
+                if (!prev || prev.role !== next.role || prev.name !== next.name) {
+                    return next;
+                }
+                return prev;
             });
         } catch {
-            setMe((prev) => {
-                if (prev !== null) bump();
-                return null;
-            });
+            safeSetMe((prev) => (prev !== null ? null : prev));
         } finally {
-            meAbort = null;
+            abortRef.current = null;
+            fetchingRef.current = false;
         }
-    };
-
-    if (typeof window !== "undefined") {
-        window.addEventListener("pageshow", e => {
-            if ((e as PageTransitionEvent).persisted) {
-                fetchMe();
-            }
-        });
-        document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === "visible") fetchMe();
-        });
-    }
+    }, [safeSetMe]);
 
     useEffect(() => {
+        unmountedRef.current = false;
         (async () => {
             setLoading(true);
             await fetchMe();
             setLoading(false);
         })();
-    }, []);
+        return () => {
+            unmountedRef.current = true;
+            abortRef.current?.abort();
+        };
+    }, [fetchMe]);
 
-    const guest = async () => {
-        try { await j<void>("/api/auth/guest", { method: "POST" }); await fetchMe(); }
-        catch (e) { console.error("게스트 로그인 실패:", e); }
-    };
+    useEffect(() => {
+        const onVisible = () => {
+            if (document.visibilityState === "visible") {
+                void fetchMe();
+            }
+        };
+        document.addEventListener("visibilitychange", onVisible);
+        return () => document.removeEventListener("visibilitychange", onVisible);
+    }, [fetchMe]);
 
-    const logout = async () => {
+    const guest = useCallback(async () => {
+        try {
+            await j<void>("/api/auth/guest", { method: "POST" });
+            await fetchMe();
+            bump();
+        } catch (e) {
+            console.error("게스트 로그인 실패:", e);
+        }
+    }, [fetchMe]);
+
+    const logout = useCallback(async () => {
         try {
             await j<void>("/api/auth/logout", { method: "POST" });
         } catch (e) {
             console.error("로그아웃 실패:", e);
         } finally {
-            setMe(null);
+            safeSetMe(() => null);
             bump();
         }
-    };
+    }, [safeSetMe]);
 
     if (loading) {
         return (
-            <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",color:"#9aa3b2"}}>
+            <div style={{ display:"flex", justifyContent:"center", alignItems:"center", height:"100vh", color:"#9aa3b2" }}>
                 로딩 중...
             </div>
         );
@@ -106,11 +131,11 @@ export default function App() {
                     onOpenSignup={() => setSignupOpen(true)}
                 />
             ) : (
-                <MemoScreen key={`session-${sessionRev}`} me={me!} onLogout={logout}/>
+                <MemoScreen key="memo-screen" me={me!} onLogout={logout} />
             )}
 
             <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onSuccess={fetchMe} />
-            <SignupModal open={signupOpen} onClose={()=>setSignupOpen(false)} onSuccess={fetchMe}/>
+            <SignupModal open={signupOpen} onClose={() => setSignupOpen(false)} onSuccess={fetchMe} />
         </>
     );
 }
