@@ -5,12 +5,14 @@ import com.notepad.auth.dto.JwtPrincipal;
 import com.notepad.global.enums.AuthStatus;
 import com.notepad.global.enums.Role;
 import com.notepad.global.enums.TokenName;
-import com.notepad.auth.jwt.JwtLoginSuccessProcessor;
+import com.notepad.auth.jwt.processor.JwtLoginSuccessProcessor;
 import com.notepad.auth.jwt.JwtProvider;
 import com.notepad.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,10 +26,13 @@ public class JwtAuthenticationService {
     private final RedisService redisService;
     private final UserService userService;
 
-    public Long authenticatedUserId(HttpServletRequest request) {
-        String refreshToken = jwtProvider.extractTokenFromCookies(request.getCookies(), TokenName.REFRESH_TOKEN);
+    public Long authenticatedUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof JwtPrincipal principal)) {
+            return null;
+        }
 
-        return jwtProvider.getIdFromRefreshToken(refreshToken);
+        return principal.getId();
     }
 
     public AuthStatus authenticateStatus(HttpServletRequest request, HttpServletResponse response) {
@@ -49,19 +54,14 @@ public class JwtAuthenticationService {
         if (jwtProvider.isExpiredToken(accessToken)) {
 
             if (refreshToken != null && !jwtProvider.isExpiredToken(refreshToken)) {
-
-                if (authenticateWithRefreshToken(request, response, refreshToken)) {
-                    return AuthStatus.SUCCESS;
-                }
-                return AuthStatus.INVALID_TOKEN;
+                boolean reissued = authenticateWithRefreshToken(request, response, refreshToken);
+                return reissued ? AuthStatus.SUCCESS : AuthStatus.INVALID_TOKEN;
             }
             return AuthStatus.TOKEN_EXPIRED;
         }
 
-        if (authenticateWithAccessToken(accessToken)) {
-            return AuthStatus.SUCCESS;
-        }
-        return AuthStatus.INVALID_TOKEN;
+        boolean authenticated = authenticateWithAccessToken(accessToken);
+        return authenticated ? AuthStatus.SUCCESS : AuthStatus.INVALID_TOKEN;
     }
 
     private AuthStatus handleRefreshTokenOnly(String refreshToken,HttpServletRequest request, HttpServletResponse response) {
@@ -69,10 +69,8 @@ public class JwtAuthenticationService {
             return AuthStatus.TOKEN_EXPIRED;
         }
 
-        if (authenticateWithRefreshToken(request, response, refreshToken)) {
-            return AuthStatus.SUCCESS;
-        }
-        return AuthStatus.INVALID_TOKEN;
+        boolean authenticated = authenticateWithRefreshToken(request, response, refreshToken);
+        return authenticated ? AuthStatus.SUCCESS : AuthStatus.INVALID_TOKEN;
     }
 
     private boolean authenticateWithAccessToken(String accessToken) {

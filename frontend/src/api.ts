@@ -15,7 +15,7 @@ export async function j<T>(url: string, init?: RequestInit): Promise<T> {
     if (res.status === 204) return undefined as T;
 
     if (!res.ok) {
-        if ((res.status === 401 || res.status === 403) && onAuthRequired) {
+        if ((res.status === 401 || res.status === 403 || res.status == 440) && onAuthRequired) {
             onAuthRequired();
         }
         let msg = res.statusText;

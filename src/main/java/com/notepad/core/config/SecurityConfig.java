@@ -2,10 +2,10 @@ package com.notepad.core.config;
 
 import com.notepad.auth.handler.CustomAuthenticationFailureHandler;
 import com.notepad.auth.handler.CustomAuthenticationSuccessHandler;
-import com.notepad.core.filter.JwtFilter;
+import com.notepad.core.filter.JwtAuthenticationFilter;
 import com.notepad.auth.service.CustomUserDetailsService;
 import com.notepad.auth.service.CustomOAuth2UserService;
-import com.notepad.core.config.component.CorsConfig;
+import com.notepad.core.filter.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,16 +19,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CorsConfig corsConfig;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtExceptionFilter jwtExceptionFilter;
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
@@ -44,8 +42,9 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(provider);
     }
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
@@ -72,16 +71,18 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/actuator/**",
                                 "/.well-known/**",
+                                "/favicon.ico",
+                                "/error",
 
-                                "/api/auth/**",
+                                // 로그인
+                                "/api/auth/login",
+                                "/api/auth/signup",
+                                "/api/auth/guest",
                                 "/oauth2/**",
-                                "/login/oauth2/**",
-
-                                "/error", "/favicon.ico"
+                                "/login/oauth2/**"
                         )
                         .permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
@@ -92,23 +93,23 @@ public class SecurityConfig {
                         .failureHandler(customAuthenticationFailureHandler)
                 )
 
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
 
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(corsConfig.getAllowOrigins());
-        configuration.setAllowedHeaders(corsConfig.getAllowHeaders());
-        configuration.setAllowedMethods(corsConfig.getAllowMethods());
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//
+//        configuration.setAllowedOrigins(corsConfig.getAllowOrigins());
+//        configuration.setAllowedHeaders(corsConfig.getAllowHeaders());
+//        configuration.setAllowedMethods(corsConfig.getAllowMethods());
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//
+//        return source;
+//    }
 }
