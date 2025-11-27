@@ -21,6 +21,7 @@ export default function App() {
     const unmountedRef = useRef(false);
 
     const COOLDOWN_MS = 1000;
+    const POLL_MS = 30000;
 
     const safeSetMe = useCallback((updater: (prev: Me | null) => Me | null) => {
         if (!unmountedRef.current) setMe(updater);
@@ -46,14 +47,9 @@ export default function App() {
                 signal: abortRef.current.signal,
             });
 
-            safeSetMe((prev) => {
-                if (!prev || prev.role !== next.role || prev.name !== next.name) {
-                    return next;
-                }
-                return prev;
-            });
+            safeSetMe(() => next);
         } catch {
-            safeSetMe((prev) => (prev !== null ? null : prev));
+            safeSetMe(() => null);
         } finally {
             abortRef.current = null;
             fetchingRef.current = false;
@@ -83,6 +79,16 @@ export default function App() {
         return () => document.removeEventListener("visibilitychange", onVisible);
     }, [fetchMe]);
 
+    useEffect(() => {
+        const id = setInterval(() => {
+            if (!document.hidden) {
+                void fetchMe();
+            }
+        }, POLL_MS);
+
+        return () => clearInterval(id);
+    }, [fetchMe]);
+
     const guest = useCallback(async () => {
         try {
             await j<void>("/api/auth/guest", { method: "POST" });
@@ -106,7 +112,13 @@ export default function App() {
 
     if (loading) {
         return (
-            <div style={{ display:"flex", justifyContent:"center", alignItems:"center", height:"100vh", color:"#9aa3b2" }}>
+            <div style={{
+                display:"flex",
+                justifyContent:"center",
+                alignItems:"center",
+                height:"100vh",
+                color:"#9aa3b2"
+            }}>
                 로딩 중...
             </div>
         );
