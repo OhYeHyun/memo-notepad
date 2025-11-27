@@ -1,6 +1,7 @@
-package com.notepad.auth.jwt;
+package com.notepad.auth.jwt.processor;
 
 import com.notepad.auth.dto.JwtPrincipal;
+import com.notepad.auth.jwt.JwtProvider;
 import com.notepad.global.enums.TokenName;
 import com.notepad.auth.service.RedisService;
 import jakarta.servlet.http.Cookie;

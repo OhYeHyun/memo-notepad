@@ -1,7 +1,7 @@
 package com.notepad.user.service;
 
 import com.notepad.auth.dto.PrincipalUser;
-import com.notepad.auth.jwt.JwtLoginSuccessProcessor;
+import com.notepad.auth.jwt.processor.JwtLoginSuccessProcessor;
 import com.notepad.dto.request.user.UserLoginRequest;
 import com.notepad.entity.User;
 import com.notepad.auth.dto.JwtPrincipal;

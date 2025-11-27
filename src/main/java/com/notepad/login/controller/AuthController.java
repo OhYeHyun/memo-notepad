@@ -1,8 +1,8 @@
 package com.notepad.login.controller;
 
 import com.notepad.auth.dto.JwtPrincipal;
-import com.notepad.auth.jwt.JwtLoginSuccessProcessor;
-import com.notepad.auth.jwt.JwtLogoutSuccessProcessor;
+import com.notepad.auth.jwt.processor.JwtLoginSuccessProcessor;
+import com.notepad.auth.jwt.processor.JwtLogoutSuccessProcessor;
 import com.notepad.dto.request.user.UserLoginRequest;
 import com.notepad.dto.response.user.UserClientResponse;
 import com.notepad.login.service.GuestService;

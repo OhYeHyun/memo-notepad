@@ -4,7 +4,7 @@ import com.notepad.entity.User;
 import com.notepad.user.repository.UserRepository;
 import com.notepad.auth.dto.PrincipalUser;
 import com.notepad.global.enums.Role;
-import com.notepad.auth.oauth.KakaoResponse;
+import com.notepad.auth.oauth.impl.KakaoResponse;
 import com.notepad.auth.oauth.OAuth2Response;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

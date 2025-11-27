@@ -1,5 +1,6 @@
-package com.notepad.auth.oauth;
+package com.notepad.auth.oauth.impl;
 
+import com.notepad.auth.oauth.OAuth2Response;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;

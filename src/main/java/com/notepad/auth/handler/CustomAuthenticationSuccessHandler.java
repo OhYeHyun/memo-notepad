@@ -2,7 +2,7 @@ package com.notepad.auth.handler;
 
 import com.notepad.auth.dto.JwtPrincipal;
 import com.notepad.auth.dto.PrincipalUser;
-import com.notepad.auth.jwt.JwtLoginSuccessProcessor;
+import com.notepad.auth.jwt.processor.JwtLoginSuccessProcessor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
