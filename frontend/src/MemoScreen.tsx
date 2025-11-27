@@ -34,7 +34,6 @@ export default function MemoScreen({ me }: Props) {
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth()+1).padStart(2,"0");
         const dd = String(d.getDate()).padStart(2,"0");
-        const today = `${yyyy}-${mm}-${dd}`;
         const tomorrow = (() => {
             const t = new Date(d); t.setDate(t.getDate()+1);
             return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
@@ -112,10 +111,22 @@ export default function MemoScreen({ me }: Props) {
         try {
             await j<MemoDto>("/api/memos", { method: "POST", body: JSON.stringify({ content: newText.trim() }) });
             setNewText("");
-            await load();
+
+            if (q.trim() !== "") {
+                setQ("");
+                setCreatedPreset("all");
+                setSortBy("updated");
+            }
+
+            await load({
+                q: "",
+                createdPreset: "all",
+                sortBy: "updated",
+            });
+
             newInputRef.current?.focus();
         } catch (e:any) {
-            if (e instanceof HttpError && (e.status === 401 || e.status === 403)) setErr("로그인이 필요합니다. 다시 로그인해 주세요.");
+            if (e instanceof HttpError && (e.status === 401 || e.status === 403 || e.status == 440)) setErr("로그인이 필요합니다. 다시 로그인해 주세요.");
             else setErr("메모 추가 실패");
         } finally {
             newInputRef.current?.focus();
